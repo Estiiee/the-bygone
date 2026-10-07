@@ -31,9 +31,11 @@
     "client.BipedEntityModelMixin",
     "client.EntityPhaseMeterGuiMixin",
     "client.ForgeLevelRendererMixin",
+    "client.GameRendererMixin",
     "client.GuiMixin",
     "client.LevelChunkMixin",
     "client.LevelRendererMixin",
+    "client.LightTextureMixin",
     "client.MixinHeldItemRenderer",
     "client.MixinItemRenderer",
     "client.MixinPlayerEntityRenderer"

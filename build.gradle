@@ -69,6 +69,11 @@ dependencies {
         jarJar.ranged(it, "[0.5.4,)")
     }
 
+    jarJar("maven.modrinth:HAVlno45:EtscyeyY") {
+        jarJar.ranged(it, "[2.3.0,)")
+    }
+    implementation fg.deobf("maven.modrinth:HAVlno45:EtscyeyY")
+
     //jarJar("curse.maven:jinxedlib-1203401:6269067")
     implementation fg.deobf("curse.maven:jinxedlib-1203401:6630668")
     //implementation fg.deobf("net.kyrptonaught.customportalapi:cpapireforged-neo-1.21.1:1.0.11")
@@ -102,6 +107,19 @@ repositories {
         content {
             includeGroupByRegex("software\\.bernie.*")
             includeGroup("com.eliotlash.mclib")
+        }
+    }
+
+    exclusiveContent {
+        forRepository {
+            maven {
+                name = "Modrinth"
+                url = "https://api.modrinth.com/maven"
+            }
+        }
+        forRepositories(fg.repository)
+        filter {
+            includeGroup "maven.modrinth"
         }
     }
 }
