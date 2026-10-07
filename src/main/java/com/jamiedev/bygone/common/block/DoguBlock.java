@@ -1,0 +1,203 @@
+package com.jamiedev.bygone.common.block;
+
+import com.jamiedev.bygone.common.block.entity.DoguEntity;
+import com.jamiedev.bygone.core.registry.BGBlockProperties;
+import com.mojang.serialization.Codec;
+import net.minecraft.core.BlockPos;
+import net.minecraft.core.Direction;
+import net.minecraft.sounds.SoundEvents;
+import net.minecraft.sounds.SoundSource;
+import net.minecraft.util.ByIdMap;
+import net.minecraft.util.StringRepresentable;
+import net.minecraft.world.InteractionHand;
+import net.minecraft.world.InteractionResult;
+import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.context.BlockPlaceContext;
+import net.minecraft.world.level.BlockGetter;
+import net.minecraft.world.level.Level;
+import net.minecraft.world.level.LevelAccessor;
+import net.minecraft.world.level.block.*;
+import net.minecraft.world.level.block.entity.BlockEntity;
+import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.level.block.state.StateDefinition;
+import net.minecraft.world.level.block.state.properties.BlockStateProperties;
+import net.minecraft.world.level.block.state.properties.BooleanProperty;
+import net.minecraft.world.level.block.state.properties.DirectionProperty;
+import net.minecraft.world.level.block.state.properties.EnumProperty;
+import net.minecraft.world.level.gameevent.GameEvent;
+import net.minecraft.world.level.material.FluidState;
+import net.minecraft.world.level.material.Fluids;
+import net.minecraft.world.phys.AABB;
+import net.minecraft.world.phys.BlockHitResult;
+import net.minecraft.world.phys.shapes.CollisionContext;
+import net.minecraft.world.phys.shapes.Shapes;
+import net.minecraft.world.phys.shapes.VoxelShape;
+import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
+
+import java.util.List;
+import java.util.function.IntFunction;
+
+public class DoguBlock extends BaseEntityBlock implements SimpleWaterloggedBlock {
+
+    public static final DirectionProperty FACING = DirectionProperty.create("facing", Direction.Plane.HORIZONTAL);
+
+    public static final EnumProperty<DoguBlock.Pose> POSE = BGBlockProperties.DOGU_POSE;
+    public static final BooleanProperty WATERLOGGED = BlockStateProperties.WATERLOGGED;
+
+    private static final VoxelShape SHAPE;
+    public static final VoxelShape[] VOXEL_SHAPE_MAP;
+
+    // https://github.com/Alchemists-Of-Yore/No-Mans-Land/blob/1.21.1/src/main/java/com/farcr/nomansland/common/block/moonlight/MoonlightBasinBlock.java
+    public static VoxelShape rotateBoundingBox(VoxelShape baseShape, int times) {
+        List<AABB> boxes = baseShape.toAabbs();
+        VoxelShape rotatedShape = Shapes.empty();
+
+        for (AABB box : boxes) {
+            double minX = box.minX;
+            double minY = box.minY;
+            double minZ = box.minZ;
+            double maxX = box.maxX;
+            double maxY = box.maxY;
+            double maxZ = box.maxZ;
+
+            for (int i = 0; i < times; i++) {
+                double rMinX = 1.0 - maxZ;
+                double rMinZ = minX;
+                double rMaxX = 1.0 - minZ;
+                double rMaxZ = maxX;
+
+                minX = Math.min(rMinX, rMaxX);
+                maxX = Math.max(rMinX, rMaxX);
+                minZ = Math.min(rMinZ, rMaxZ);
+                maxZ = Math.max(rMinZ, rMaxZ);
+            }
+
+            if (minX >= maxX || minZ >= maxZ || minY >= maxY)
+                continue;
+
+            rotatedShape = Shapes.or(rotatedShape, Shapes.box(minX, minY, minZ, maxX, maxY, maxZ));
+        }
+        return rotatedShape;
+    }
+
+    static {
+        SHAPE = Shapes.or(
+            Block.box(6, 16, 6, 10, 18, 10),
+            Block.box(4, 11, 3, 12, 16, 13),
+            Block.box(7, 11, 2, 9, 14, 3),
+            Block.box(4.5, 5, 5, 11.5, 11, 11),
+            Block.box(1.5, 3, 6, 4.5, 11, 10),
+            Block.box(11.5, 3, 6, 14.5, 11, 10),
+            Block.box(5.5, 0, 5.5, 10.5, 5, 10.5)
+        );
+
+        VOXEL_SHAPE_MAP = new VoxelShape[]{
+            SHAPE, rotateBoundingBox(SHAPE, 1),
+            rotateBoundingBox(SHAPE, 2),
+            rotateBoundingBox(SHAPE, 3),
+        };
+    }
+
+    public DoguBlock(Properties properties) {
+        super(properties);
+        this.registerDefaultState(
+                this.defaultBlockState().setValue(FACING, Direction.NORTH)
+                        .setValue(POSE, Pose.STANDING).setValue(WATERLOGGED, false)
+        );
+    }
+    
+    public @NotNull RenderShape getRenderShape(@NotNull BlockState state) {
+        return RenderShape.MODEL;
+    }
+
+    @Override
+    public VoxelShape getShape(BlockState state, BlockGetter world, BlockPos pos, CollisionContext context) {
+        return VOXEL_SHAPE_MAP[state.getOptionalValue(FACING).orElse(Direction.DOWN).getOpposite().get2DDataValue()];
+    }
+
+    @Override
+    public @Nullable BlockEntity newBlockEntity(BlockPos blockPos, BlockState blockState) {
+        return new DoguEntity(blockPos, blockState);
+    }
+
+    @Override
+    protected void createBlockStateDefinition(StateDefinition.Builder<Block, BlockState> builder) {
+        super.createBlockStateDefinition(builder);
+        builder.add(FACING, POSE, WATERLOGGED);
+    }
+
+    @Override
+    public BlockState getStateForPlacement(BlockPlaceContext context) {
+        return this.defaultBlockState().setValue(FACING, context.getHorizontalDirection().getOpposite());
+    }
+
+    @Deprecated
+    @Override
+    public BlockState rotate(BlockState state, Rotation rotation) {
+        return state.setValue(FACING, rotation.rotate(state.getValue(FACING)));
+    }
+
+    @Deprecated
+    @Override
+    public BlockState mirror(BlockState state, Mirror mirror) {
+        return state.rotate(mirror.getRotation(state.getValue(FACING)));
+    }
+    
+    @Override
+    public InteractionResult use(BlockState state, Level level, BlockPos pos, Player player, InteractionHand hand, BlockHitResult hit) {
+        ItemStack stack = player.getItemInHand(hand);
+        this.updatePose(level, state, pos, player);
+        return InteractionResult.SUCCESS;
+    }
+    
+    void updatePose(Level level, BlockState blockState, BlockPos blockPos, Player player) {
+        level.playSound(null, blockPos, SoundEvents.MUD_BRICKS_BREAK, SoundSource.BLOCKS);
+        level.setBlock(blockPos, blockState.setValue(POSE, blockState.getValue(POSE).getNextPose()), 3);
+        level.gameEvent(player, GameEvent.BLOCK_CHANGE, blockPos);
+    }
+
+    @Override
+    public boolean hasAnalogOutputSignal(BlockState blockState) {
+        return true;
+    }
+
+    @Override
+    public int getAnalogOutputSignal(BlockState blockState, Level level, BlockPos pos) {
+        return blockState.getValue(POSE).ordinal() + 1;
+    }
+
+    @Override
+    public FluidState getFluidState(BlockState blockState) {
+        return blockState.getValue(WATERLOGGED) ? Fluids.WATER.getSource(false) : super.getFluidState(blockState);
+    }
+
+    public BlockState updateShape(Direction direction, BlockState neighborState,
+                                  LevelAccessor level, BlockPos pos, BlockPos neighborPos) {
+        return this.updateShape(this.defaultBlockState(),
+                direction, neighborState, level, pos, neighborPos);
+    }
+
+    public enum Pose implements StringRepresentable {
+        STANDING("standing"),
+        DANCING("dancing");
+
+        public static final IntFunction<Pose> BY_ID = ByIdMap.continuous(Enum::ordinal, values(), ByIdMap.OutOfBoundsStrategy.ZERO);
+        public static final Codec<Pose> CODEC = StringRepresentable.fromEnum(DoguBlock.Pose::values);
+        private final String name;
+
+        Pose(final String string2) {
+            this.name = string2;
+        }
+
+        @Override
+        public String getSerializedName() {
+            return this.name;
+        }
+
+        public DoguBlock.Pose getNextPose() {
+            return BY_ID.apply(this.ordinal() + 1);
+        }
+    }
+}

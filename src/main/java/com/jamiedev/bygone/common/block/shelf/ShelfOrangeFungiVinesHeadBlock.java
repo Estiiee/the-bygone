@@ -1,0 +1,68 @@
+package com.jamiedev.bygone.common.block.shelf;
+
+import com.jamiedev.bygone.core.registry.BGBlocks;
+import net.minecraft.core.BlockPos;
+import net.minecraft.core.Direction;
+import net.minecraft.server.level.ServerLevel;
+import net.minecraft.util.RandomSource;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.level.BlockGetter;
+import net.minecraft.world.level.Level;
+import net.minecraft.world.level.LevelReader;
+import net.minecraft.world.level.block.Block;
+import net.minecraft.world.level.block.BonemealableBlock;
+import net.minecraft.world.level.block.GrowingPlantHeadBlock;
+import net.minecraft.world.level.block.state.BlockBehaviour;
+import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.level.block.state.StateDefinition;
+import org.jetbrains.annotations.NotNull;
+
+public class ShelfOrangeFungiVinesHeadBlock extends GrowingPlantHeadBlock implements BonemealableBlock, ShelfVines {
+    private static final float GROW_CHANCE = 0.11F;
+
+    public ShelfOrangeFungiVinesHeadBlock(BlockBehaviour.Properties settings) {
+        super(settings, Direction.DOWN, SHAPE, false, 0.1);
+        this.registerDefaultState(this.stateDefinition.any().setValue(AGE, 0));
+    }
+
+    @Override
+    protected int getBlocksToGrowWhenBonemealed(RandomSource random) {
+        return 1;
+    }
+
+    @Override
+    protected boolean canGrowInto(BlockState state) {
+        return state.isAir();
+    }
+
+    @Override
+    protected Block getBodyBlock() {
+        return BGBlocks.ORANGE_FUNGI_PLANT.get();
+    }
+
+    @Override
+    public ItemStack getCloneItemStack(BlockGetter world, BlockPos pos, BlockState state) {
+        return new ItemStack(BGBlocks.ORANGE_FUNGI_PLANT.get());
+    }
+
+    @Override
+    protected void createBlockStateDefinition(StateDefinition.Builder<Block, BlockState> builder) {
+        super.createBlockStateDefinition(builder);
+    }
+
+    @Override
+    public boolean isValidBonemealTarget(LevelReader world, BlockPos pos, BlockState state, boolean isClient) {
+        return false;
+    }
+
+    @Override
+    public boolean isBonemealSuccess(Level world, @NotNull RandomSource random, BlockPos pos, BlockState state) {
+        return true;
+    }
+
+    @Override
+    public void performBonemeal(ServerLevel world, @NotNull RandomSource random, BlockPos pos, BlockState state) {
+
+    }
+
+}

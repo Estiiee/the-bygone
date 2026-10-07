@@ -1,0 +1,16 @@
+{
+  "required": true,
+  "package": "com.jamiedev.bygone.core.mixin",
+  "compatibilityLevel": "JAVA_21",
+  "mixins": [
+    "CowEntityMixinFabric",
+    "DecoratedPotPatternsMixin",
+    "ServerLevelMixinFabric"
+  ],
+  "injectors": {
+    "defaultRequire": 1
+  },
+  "client": [
+    "HeartTypeMixinFabric"
+  ]
+}

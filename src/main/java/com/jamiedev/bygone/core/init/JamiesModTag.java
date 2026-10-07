@@ -1,0 +1,161 @@
+package com.jamiedev.bygone.core.init;
+
+import com.jamiedev.bygone.Bygone;
+import net.minecraft.core.registries.Registries;
+import net.minecraft.tags.TagKey;
+import net.minecraft.world.damagesource.DamageType;
+import net.minecraft.world.effect.MobEffect;
+import net.minecraft.world.entity.EntityType;
+import net.minecraft.world.entity.ai.village.poi.PoiType;
+import net.minecraft.world.item.Item;
+import net.minecraft.world.level.biome.Biome;
+import net.minecraft.world.level.block.Block;
+import net.minecraft.world.level.levelgen.structure.Structure;
+import net.minecraft.world.level.material.Fluid;
+
+public class JamiesModTag {
+
+    public static final TagKey<MobEffect> AIRLESS_BREATHING = MobEffects.createTag("airless_breathing");
+	public static final TagKey<MobEffect> IGNORES_PLASMILK = MobEffects.createTag("ignores_plasmilk");
+
+    public static final TagKey<Block> SABLE_LOGS = Blocks.createTag("sable_logs");
+    public static final TagKey<Block> BIG_BEAK_SPAWNABLE_ON = Blocks.createTag("big_beak_spawnable_on");
+    public static final TagKey<Block> GLARE_SPAWNABLE_ON = Blocks.createTag("glare_spawnable_on");
+    public static final TagKey<Block> LITHY_SPAWNABLE_ON = Blocks.createTag("lithy_spawnable_on");
+    public static final TagKey<Block> HAUNT_SPAWNABLE_ON = Blocks.createTag("haunt_spawnable_on");
+    public static final TagKey<Block> WISP_SPAWNABLE_ON = Blocks.createTag("wisp_spawnable_on");
+    public static final TagKey<Block> WRAITH_SPAWNABLE_ON = Blocks.createTag("wraith_spawnable_on");
+
+    public static final TagKey<Block> ICE_BOUQUET_FORBIDDEN = Blocks.createTag("ice_bouquet_forbidden");
+
+    public static final TagKey<Block> HEATER_BLOCKS = Blocks.createTag("heater_blocks");
+
+    public static final TagKey<Block> MEGALITH_BLOCKS = Blocks.createTag("megalith_blocks");
+
+    public static final TagKey<Block> SPRINKLERS = Blocks.createTag("sprinklers");
+    public static final TagKey<Block> COPPER_BLOCKS_1 = Blocks.createTag("copper_blocks");
+
+    public static final TagKey<Item> AQUIFAWN_FOOD = Items.createTag("aquifawn_food");
+    public static final TagKey<Block> AMOEBA_REPELLENTS = Blocks.createTag("amoeba_repellents");
+    public static final TagKey<Block> SPECTRAL_BLOCKS = Blocks.createTag("spectral_blocks");
+    public static final TagKey<Block> HURT_SPECTRAL_BLOCKS = Blocks.createTag("hurt_spectral_blocks");
+    public static final TagKey<Block> PEST_REPELLENTS = Blocks.createTag("pest_repellents");
+    public static final TagKey<Block> SABEAST_REPELLENTS = Blocks.createTag("sabeast_repellents");
+
+    public static final TagKey<Block> UMBRAL_SOIL = Blocks.createTag("umbral_soil");
+    public static final TagKey<Block> MOSSY = Blocks.createTag("mossy");
+    public static final TagKey<Block> CORALS = Blocks.createTag("corals");
+    public static final TagKey<Block> CORAL_BLOCKS = Blocks.createTag("coral_blocks");
+    public static final TagKey<Block> WALL_CORALS = Blocks.createTag("wall_corals");
+
+    public static final TagKey<Block> WHIRLIWEEDS = Blocks.createTag("whirliweeds");
+    public static final TagKey<Item> WHIRLIWEEDS_ITEM = Items.createTag("whirliweeds");
+
+    public static final TagKey<Fluid> LITHO = Fluids.create("litho");
+
+    public static final TagKey<Block> CORAL_PLANTS = Blocks.createTag("coral_plants");
+    public static final TagKey<Block> CORAL_BLOCK_REPLACEABLE = Blocks.createTag("coral_block_replaceable");
+
+    public static final TagKey<Block> BLEMISH_REPLACEABLE = Blocks.createTag("blemish_replaceable");
+    public static final TagKey<Block> BLEMISH_REPLACEABLE_WORLD_GEN = Blocks.createTag("blemish_replaceable_world_gen");
+    public static final TagKey<Block> CREOSOTE_MAY_PLACE_ON = Blocks.createTag("creosote_may_place_on");
+
+    public static final TagKey<Item> COPPER_BLOCKS = Items.createTag("copper_blocks");
+    public static final TagKey<Item> VERDAGRIS_ITEMS = Items.createTag("verdigris_items");
+
+    public static final TagKey<Item> BIGBEAK_FOOD = Items.createTag("bigbeak_food");
+    public static final TagKey<Item> WHISKBILL_FOOD = Items.createTag("whiskbill_food");
+
+    public static final TagKey<Item> GUMBO_MAKES_SAFE = Items.createTag("gumbo_makes_safe");
+    public static final TagKey<Item> CANNOT_ADD_TO_GUMBO = Items.createTag("cannot_add_to_gumbo");
+
+    public static final TagKey<Item> SABEAST_AFRAID_PLAYER_HOLD = Items.createTag("sabeast_afraid_player_hold");
+
+    public static final TagKey<EntityType<?>> SPECTRAL_VULNERABLE_TO_ENTITY = Entities.createTag("spectral_vulnerable_to");
+    public static final TagKey<DamageType> SPECTRAL_VULNERABLE_TO_DAMAGE = DamageTypes.createTag("spectral_vulnerable_to");
+    public static final TagKey<Item> SPECTRAL_VULNERABLE_TO_ITEM = Items.createTag("spectral_vulnerable_to");
+
+	public static final TagKey<Structure> ON_BYGONE_PORTAL_MAPS = Structures.createTag("on_bygone_portal_maps");
+
+    public static final TagKey<Structure> BYGONE_ITEM_LOCATED = Structures.createTag("bygone_item_located");
+    public static final TagKey<Block> COPPERBUGNESTS = Blocks.createTag("copperbug_nests");
+
+    public static final TagKey<EntityType<?>> SPECTRAL = Entities.createTag("spectral");
+    public static final TagKey<EntityType<?>> NOT_FREEZE_WALLOW = Entities.createTag("not_freeze_wallow");
+
+    public static final TagKey<EntityType<?>> ICE_BOUQUET_HEALS = Entities.createTag("ice_bouquet_heals");
+
+    public static final TagKey<EntityType<?>> COPPERBUGNEST_INHABITORS = Entities.createTag("copperbugnest_inhabitors");
+    public static final TagKey<Block> SHELF_FUNGI = Blocks.createTag("shelf_fungi");
+    public static final TagKey<Block> MOLD_REPLACEABLE = Blocks.createTag("mold_replaceable");
+
+    public static final TagKey<Biome> SPAWNS_WARM_BIGBEAKS = Biomes.createTag("spawns_warm_bigbeaks");
+
+    public static final TagKey<Biome> ALLOWS_PRIMORDIAL_FISH_SPAWNS_AT_ANY_HEIGHT = Biomes.createTag(
+            "allows_primordial_fish_spawns_at_any_height");
+
+    public static class MobEffects {
+
+        private static TagKey<MobEffect> createTag(String name) {
+            return TagKey.create(Registries.MOB_EFFECT, Bygone.id(name));
+        }
+    }
+
+    public static class DamageTypes {
+
+        private static TagKey<DamageType> createTag(String name) {
+            return TagKey.create(Registries.DAMAGE_TYPE, Bygone.id(name));
+        }
+    }
+
+    public static class Blocks {
+
+        private static TagKey<Block> createTag(String name) {
+            return TagKey.create(Registries.BLOCK, Bygone.id(name));
+        }
+    }
+
+    public static class Biomes {
+
+        private static TagKey<Biome> createTag(String name) {
+            return TagKey.create(Registries.BIOME, Bygone.id(name));
+        }
+    }
+
+    public static class Fluids {
+        private static TagKey<Fluid> create(String name) {
+            return TagKey.create(Registries.FLUID, Bygone.id(name));
+        }
+    }
+
+
+    public static class Entities {
+        private static TagKey<EntityType<?>> createTag(String id) {
+            return TagKey.create(Registries.ENTITY_TYPE, Bygone.id(id));
+        }
+    }
+
+    public static class Items {
+        public static final TagKey<Item> TRANSFORMABLE_ITEMS = createTag("transformable_items");
+
+        private static TagKey<Item> createTag(String name) {
+            return TagKey.create(Registries.ITEM, Bygone.id(name));
+        }
+    }
+
+    public static class Structures {
+
+        private static TagKey<Structure> createTag(String id) {
+            return TagKey.create(Registries.STRUCTURE, Bygone.id(id));
+        }
+    }
+
+    public static class PointOfInterests {
+        public static final TagKey<PoiType> COPPERBUG_HOME = of("copperbug_home");
+
+
+        private static TagKey<PoiType> of(String id) {
+            return TagKey.create(Registries.POINT_OF_INTEREST_TYPE, Bygone.id(id));
+        }
+    }
+}

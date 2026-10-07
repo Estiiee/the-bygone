@@ -1,0 +1,321 @@
+package com.jamiedev.bygone.common.entity;
+
+import com.jamiedev.bygone.client.particles.LithoParticleOptions;
+import com.jamiedev.bygone.common.entity.ai.AvoidBlockGoal;
+import com.jamiedev.bygone.core.init.JamiesModTag;
+import com.jamiedev.bygone.core.registry.BGBlocks;
+import com.jamiedev.bygone.core.registry.BGDamageTypes;
+import net.minecraft.core.BlockPos;
+import net.minecraft.core.particles.DustParticleOptions;
+import net.minecraft.network.syncher.EntityDataAccessor;
+import net.minecraft.network.syncher.EntityDataSerializers;
+import net.minecraft.network.syncher.SynchedEntityData;
+import net.minecraft.util.RandomSource;
+import net.minecraft.world.Difficulty;
+import net.minecraft.world.effect.MobEffect;
+import net.minecraft.world.effect.MobEffectInstance;
+import net.minecraft.world.effect.MobEffects;
+import net.minecraft.world.entity.*;
+import net.minecraft.world.entity.ai.goal.Goal;
+import net.minecraft.world.entity.ai.goal.RandomStrollGoal;
+import net.minecraft.world.entity.ai.goal.target.NearestAttackableTargetGoal;
+import net.minecraft.world.entity.animal.allay.Allay;
+import net.minecraft.world.entity.monster.Vex;
+import net.minecraft.world.level.Level;
+import net.minecraft.world.level.LevelAccessor;
+import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.phys.AABB;
+import net.minecraft.world.phys.Vec3;
+
+import javax.annotation.Nullable;
+import java.util.EnumSet;
+import java.util.function.Predicate;
+
+public class HauntEntity extends Allay {
+    protected static final int ATTACK_TIME = 80;
+    private static final EntityDataAccessor<Integer> DATA_ID_ATTACK_TARGET;
+    private static final DustParticleOptions PLASM_DUST = new DustParticleOptions(Vec3.fromRGB24(14151396).toVector3f(), 1.0F);
+    public AnimationState idleAnimationState = new AnimationState();
+    public AnimationState floatAnimationState = new AnimationState();
+
+    @Nullable
+    private LivingEntity clientSideCachedAttackTarget;
+    private int clientSideAttackTime;
+    @Nullable
+    protected RandomStrollGoal randomStrollGoal;
+
+    public HauntEntity(EntityType<? extends HauntEntity> entityType, Level level) {
+        super(entityType, level);
+    }
+    
+    public void registerGoals()
+    {
+        super.registerGoals();
+        this.randomStrollGoal = new RandomStrollGoal(this, (double)1.0F, 80);
+        this.goalSelector.addGoal(3, new AvoidBlockGoal(this, 16, 1.4, 1.6, (pos) -> {
+            BlockState state = this.level().getBlockState(pos);
+            return state.is(JamiesModTag.HURT_SPECTRAL_BLOCKS);
+        }));
+        this.goalSelector.addGoal(3, new AvoidBlockGoal(this, 16, 1.4, 1.6, (pos) -> {
+            BlockState state = this.level().getBlockState(pos);
+            return state.is(BGBlocks.LITHOPLASMIC_POWDER.get());
+        }));
+        this.goalSelector.addGoal(4, new HauntEntityAttackGoal(this));
+        this.targetSelector.addGoal(1, new NearestAttackableTargetGoal<>(this, LivingEntity.class, 10, true, false, new HauntEntityAttackSelector(this)));
+        this.randomStrollGoal.setFlags(EnumSet.of(Goal.Flag.MOVE, Goal.Flag.LOOK));
+    }
+
+    private void setupAnimationStates() {
+
+        this.idleAnimationState.startIfStopped(this.tickCount);
+        if (this.getDeltaMovement().horizontalDistanceSqr() > 2.5000003E-7F) {
+            this.floatAnimationState.startIfStopped(this.tickCount);
+        } else {
+            this.floatAnimationState.stop();
+        }
+    }
+
+    private boolean collidingHurtSpectralBlocks() {
+        AABB aabb = this.getBoundingBox().inflate(1.0F, 1.0F, 1.0F);
+        return BlockPos.betweenClosedStream(aabb).anyMatch((collisionShape) -> {
+            BlockState blockstate = this.level().getBlockState(collisionShape);
+            return blockstate.is(JamiesModTag.HURT_SPECTRAL_BLOCKS);
+        });
+    }
+
+    private boolean collidingSpectralBlocks() {
+        AABB aabb = this.getBoundingBox().inflate(1.0F, 1.0F, 1.0F);
+        return BlockPos.betweenClosedStream(aabb).anyMatch((collisionShape) -> {
+            BlockState blockstate = this.level().getBlockState(collisionShape);
+            return blockstate.is(JamiesModTag.SPECTRAL_BLOCKS);
+        });
+    }
+
+
+    public void tick() {
+        super.tick();
+
+        if (this.level().isClientSide()) {
+            this.setupAnimationStates();
+        }
+
+        if  (collidingHurtSpectralBlocks())
+        {
+            this.hurt(BGDamageTypes.source(this.level(), BGDamageTypes.HAUNTED, this, this.getLastAttacker()), 1);
+ 
+        }
+
+        noPhysics = !collidingSpectralBlocks();
+
+    }
+    
+    @Override
+    public boolean canBeAffected(MobEffectInstance potioneffect) {
+        MobEffect effect = potioneffect.getEffect();
+        
+        return !(effect == MobEffects.POISON
+                || effect == MobEffects.HARM
+                || effect == MobEffects.WITHER)
+                && super.canBeAffected(potioneffect);
+    }
+    
+    @Override
+    protected void positionRider(Entity passenger, Entity.MoveFunction callback) {
+        super.positionRider(passenger, callback);
+        callback.accept(passenger, this.getX(), this.getY() + 0.04, this.getZ());
+    }
+    
+    public void aiStep()
+    {
+        super.aiStep();
+
+        if (this.isAlive()) {
+            if (this.level().isClientSide) {
+                if (this.hasActiveAttackTarget()) {
+                    if (this.clientSideAttackTime < this.getAttackDuration()) {
+                        ++this.clientSideAttackTime;
+                    }
+
+                    LivingEntity livingentity = this.getActiveAttackTarget();
+                    if (livingentity != null) {
+                        this.getLookControl().setLookAt(livingentity, 90.0F, 90.0F);
+                        this.getLookControl().tick();
+                        double d5 = (double)this.getAttackAnimationScale(0.0F);
+                        double d0 = livingentity.getX() - this.getX();
+                        double d1 = livingentity.getY((double)0.5F) - this.getEyeY();
+                        double d2 = livingentity.getZ() - this.getZ();
+                        double d3 = Math.sqrt(d0 * d0 + d1 * d1 + d2 * d2);
+                        d0 /= d3;
+                        d1 /= d3;
+                        d2 /= d3;
+                        double d4 = this.random.nextDouble();
+
+                        while(d4 < d3) {
+                            d4 += 1.8 - d5 + this.random.nextDouble() * (1.7 - d5);
+                            this.level().addParticle(PLASM_DUST, this.getX() + d0 * d4, this.getEyeY() + d1 * d4, this.getZ() + d2 * d4, (double)0.0F, (double)0.0F, (double)0.0F);
+                        }
+                    }
+                }
+            }
+        }
+    }
+    
+    @Override
+    protected float getStandingEyeHeight(Pose pose, EntityDimensions dimensions) {
+        return 0.36F;
+    }
+
+    @Override
+    public float getLightLevelDependentMagicValue() {
+        return 1.0F;
+    }
+
+    public static boolean canSpawn(EntityType<? extends Mob> type, LevelAccessor level, MobSpawnType reason, BlockPos blockPos, RandomSource random) {
+        return level.getBlockState(blockPos.below()).is(JamiesModTag.HAUNT_SPAWNABLE_ON);
+    }
+
+    protected void defineSynchedData() {
+        super.defineSynchedData();
+        this.entityData.define(DATA_ID_ATTACK_TARGET, 0);
+    }
+
+    public int getAttackDuration() {
+        return 80;
+    }
+
+    void setActiveAttackTarget(int activeAttackTargetId) {
+        this.entityData.set(DATA_ID_ATTACK_TARGET, activeAttackTargetId);
+    }
+
+    public boolean hasActiveAttackTarget() {
+        return (Integer)this.entityData.get(DATA_ID_ATTACK_TARGET) != 0;
+    }
+
+    public LivingEntity getActiveAttackTarget() {
+        if (!this.hasActiveAttackTarget()) {
+            return null;
+        } else if (this.level().isClientSide) {
+            if (this.clientSideCachedAttackTarget != null) {
+                return this.clientSideCachedAttackTarget;
+            } else {
+                Entity entity = this.level().getEntity((Integer)this.entityData.get(DATA_ID_ATTACK_TARGET));
+                if (entity instanceof LivingEntity) {
+                    this.clientSideCachedAttackTarget = (LivingEntity)entity;
+                    return this.clientSideCachedAttackTarget;
+                } else {
+                    return null;
+                }
+            }
+        } else {
+            return this.getTarget();
+        }
+    }
+
+    public void onSyncedDataUpdated(EntityDataAccessor<?> key) {
+        super.onSyncedDataUpdated(key);
+        if (DATA_ID_ATTACK_TARGET.equals(key)) {
+            this.clientSideAttackTime = 0;
+            this.clientSideCachedAttackTarget = null;
+        }
+
+    }
+
+    public float getAttackAnimationScale(float partialTick) {
+        return ((float)this.clientSideAttackTime + partialTick) / (float)this.getAttackDuration();
+    }
+
+    public float getClientSideAttackTime() {
+        return (float)this.clientSideAttackTime;
+    }
+
+    static {
+        DATA_ID_ATTACK_TARGET = SynchedEntityData.defineId(HauntEntity.class,
+                EntityDataSerializers.INT);
+    }
+
+    static class HauntEntityAttackGoal extends Goal {
+        private final HauntEntity haunt;
+        private int attackTime;
+
+        public HauntEntityAttackGoal(HauntEntity haunt) {
+            this.haunt = haunt;
+            this.setFlags(EnumSet.of(Flag.MOVE, Flag.LOOK));
+        }
+
+        public boolean canUse() {
+            LivingEntity livingentity = this.haunt.getTarget();
+            return livingentity != null && livingentity.isAlive();
+        }
+
+        public boolean canContinueToUse() {
+            return super.canContinueToUse() && (this.haunt.getTarget() != null && this.haunt.distanceToSqr(this.haunt.getTarget()) > (double)9.0F);
+        }
+
+        public void start() {
+            this.attackTime = -10;
+            this.haunt.getNavigation().stop();
+            LivingEntity livingentity = this.haunt.getTarget();
+            if (livingentity != null) {
+                this.haunt.getLookControl().setLookAt(livingentity, 90.0F, 90.0F);
+            }
+
+            this.haunt.hasImpulse = true;
+        }
+
+        public void stop() {
+            this.haunt.setActiveAttackTarget(0);
+            this.haunt.setTarget((LivingEntity)null);
+            assert this.haunt.randomStrollGoal != null;
+            this.haunt.randomStrollGoal.trigger();
+        }
+
+        public boolean requiresUpdateEveryTick() {
+            return true;
+        }
+
+        public void tick() {
+            LivingEntity livingentity = this.haunt.getTarget();
+            if (livingentity != null) {
+                this.haunt.getNavigation().stop();
+                this.haunt.getLookControl().setLookAt(livingentity, 90.0F, 90.0F);
+                if (!this.haunt.hasLineOfSight(livingentity)) {
+                    this.haunt.setTarget((LivingEntity)null);
+                } else {
+                    ++this.attackTime;
+                    if (this.attackTime == 0) {
+                        this.haunt.setActiveAttackTarget(livingentity.getId());
+                        if (!this.haunt.isSilent()) {
+                            this.haunt.level().broadcastEntityEvent(this.haunt, (byte)121);
+                        }
+                    } else if (this.attackTime >= this.haunt.getAttackDuration()) {
+                        float f = 1.0F;
+                        if (this.haunt.level().getDifficulty() == Difficulty.HARD) {
+                            f += 2.0F;
+                        }
+                        
+                        livingentity.hurt(this.haunt.damageSources().indirectMagic(this.haunt, this.haunt), f);
+                        haunt.heal(f);
+                        this.haunt.doHurtTarget(livingentity);
+                        this.haunt.setTarget((LivingEntity)null);
+                    }
+
+                    super.tick();
+                }
+            }
+
+        }
+    }
+
+    static class HauntEntityAttackSelector implements Predicate<LivingEntity> {
+        private final HauntEntity haunt;
+
+        public HauntEntityAttackSelector(HauntEntity haunt) {
+            this.haunt = haunt;
+        }
+
+        public boolean test(@Nullable LivingEntity entity) {
+            return (entity instanceof MoobooEntity || entity instanceof WraithEntity || entity instanceof Vex)
+                    && entity.distanceToSqr(this.haunt) > (double)9.0F;
+        }
+    }
+}

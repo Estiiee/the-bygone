@@ -1,0 +1,301 @@
+package com.jamiedev.bygone;
+
+import com.jamiedev.bygone.common.entity.*;
+import com.jamiedev.bygone.common.util.Consumer4;
+import com.jamiedev.bygone.core.init.JamiesModTag;
+import com.jamiedev.bygone.core.mixin.AxeItemAccess;
+import com.jamiedev.bygone.core.network.BygonePackets;
+import com.jamiedev.bygone.core.registry.*;
+import net.minecraft.core.BlockPos;
+import net.minecraft.core.Registry;
+import net.minecraft.core.registries.BuiltInRegistries;
+import net.minecraft.resources.ResourceLocation;
+import net.minecraft.world.entity.EntityType;
+import net.minecraft.world.entity.LivingEntity;
+import net.minecraft.world.entity.Mob;
+import net.minecraft.world.entity.SpawnPlacements;
+import net.minecraft.world.entity.ai.attributes.AttributeSupplier;
+import net.minecraft.world.item.Item;
+import net.minecraft.world.level.LevelReader;
+import net.minecraft.world.level.block.Block;
+import net.minecraft.world.level.block.Blocks;
+import net.minecraft.world.level.block.FireBlock;
+import net.minecraft.world.level.block.entity.BlockEntityType;
+import net.minecraft.world.level.levelgen.Heightmap;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+
+import java.util.IdentityHashMap;
+import java.util.Map;
+import java.util.function.BiConsumer;
+import java.util.stream.Stream;
+
+public class Bygone {
+    public static final String MOD_ID = "bygone";
+    public static final Logger LOGGER = LogManager.getLogger(MOD_ID);
+
+    public static void init() {
+        BGFluids.init();
+        BGBlocks.init();
+        BGBlockEntities.init();
+        BGAttributes.init();
+        BGItems.init();
+        BGEntityTypes.postInit();
+        BGBiomes.init();
+        BGBlockProperties.init();
+        BGItemGroups.register();
+        BGFishingTables.init();
+        BygonePackets.init();
+    }
+
+    public static void registerStrippables() {
+        Map<Block, Block> strippables = new IdentityHashMap<>(AxeItemAccess.getStripables());
+
+        strippables.put(BGBlocks.ANCIENT_LOG.get(), BGBlocks.STRIPPED_ANCIENT_LOG.get());
+        strippables.put(BGBlocks.ANCIENT_WOOD.get(), BGBlocks.STRIPPED_ANCIENT_WOOD.get());
+
+        strippables.put(BGBlocks.SABLE_LOG.get(), BGBlocks.STRIPPED_SABLE_LOG.get());
+        strippables.put(BGBlocks.SABLE_WOOD.get(), BGBlocks.STRIPPED_SABLE_WOOD.get());
+
+
+        AxeItemAccess.setStripables(strippables);
+    }
+
+    public static ResourceLocation id(String id) {
+        return ResourceLocation.fromNamespaceAndPath(MOD_ID, id);
+    }
+
+    public static void registerBuiltIn() {
+        //Forge was complaining so everything from here is in RegisterEvent now
+    }
+
+    public static void initAttributes(BiConsumer<EntityType<? extends LivingEntity>, AttributeSupplier> consumer) {
+        consumer.accept(BGEntityTypes.DUCK.get(), DuckEntity.createDuckAttributes().build());
+        consumer.accept(BGEntityTypes.BIG_BEAK.get(), BigBeakEntity.createBigBeakAttributes().build());
+        consumer.accept(BGEntityTypes.GLARE.get(), GlareEntity.createGlareAttributes().build());
+        consumer.accept(BGEntityTypes.SCUTTLE.get(), ScuttleEntity.createAttributes().build());
+        consumer.accept(BGEntityTypes.COELACANTH.get(), CoelacanthEntity.createAttributes().build());
+        consumer.accept(BGEntityTypes.TRILOBITE.get(), TrilobiteEntity.createAttributes().build());
+        consumer.accept(BGEntityTypes.MOOBOO.get(), MoobooEntity.createAttributes().build());
+        consumer.accept(BGEntityTypes.COPPERBUG.get(), CopperbugEntity.createCopperbugAttributes().build());
+        consumer.accept(BGEntityTypes.FUNGAL_PARENT.get(), FungalParentEntity.createFungieAttributes().build());
+        consumer.accept(BGEntityTypes.PESKY.get(), PeskyEntity.createAttributes().build());
+        consumer.accept(BGEntityTypes.PEST.get(), PestEntity.createAttributes().build());
+        consumer.accept(BGEntityTypes.WHISKBILL.get(), WhiskbillEntity.createAttributes().build());
+        consumer.accept(BGEntityTypes.NECTAUR.get(), NectaurEntity.createAttributes().build());
+        consumer.accept(BGEntityTypes.LITHY.get(), LithyEntity.createAttributes().build());
+        consumer.accept(BGEntityTypes.WISP.get(), WispEntity.createAttributes().build());
+        consumer.accept(BGEntityTypes.GEIST.get(), GeistEntity.createAttributes().build());
+        consumer.accept(BGEntityTypes.REAVER.get(), ReaverEntity.createAttributes().build());
+        consumer.accept(BGEntityTypes.WALLOW.get(), WallowEntity.createAttributes().build());
+        consumer.accept(BGEntityTypes.HAUNT.get(), HauntEntity.createAttributes().build());
+        consumer.accept(BGEntityTypes.WRAITH.get(), WraithEntity.createAttributes().build());
+        consumer.accept(BGEntityTypes.SABEAST.get(), SabeastEntity.createAttributes().build());
+        consumer.accept(BGEntityTypes.AMOEBA.get(), AmoebaEntity.createAttributes().build());
+        consumer.accept(BGEntityTypes.PRIMORDIAL_FISH.get(), PrimordialFishEntity.createAttributes().build());
+        consumer.accept(BGEntityTypes.AQUIFAWN.get(), AquifawnEntity.createAttributes().build());
+        consumer.accept(BGEntityTypes.MURKLING.get(), MurklingEntity.createAttributes().build());
+
+        consumer.accept(BGEntityTypes.BYGONE_PORTAL.get(), BygonePortalEntity.createAttributes().build());
+    }
+
+    @SuppressWarnings("unchecked")
+    public static <T extends Mob> void registerSpawnPlacements(Consumer4<EntityType<T>, SpawnPlacements.Type, Heightmap.Types, SpawnPlacements.SpawnPredicate<T>> consumer) {
+        consumer.accept(
+                (EntityType<T>) BGEntityTypes.SCUTTLE.get(),
+                SpawnPlacements.Type.IN_WATER,
+                Heightmap.Types.MOTION_BLOCKING_NO_LEAVES,
+				ScuttleEntity::checkSurfaceWaterAnimalSpawnRule
+        );
+        consumer.accept(
+                (EntityType<T>) BGEntityTypes.AQUIFAWN.get(),
+                SpawnPlacements.Type.IN_WATER,
+                Heightmap.Types.MOTION_BLOCKING_NO_LEAVES,
+				ScuttleEntity::checkSurfaceWaterAnimalSpawnRule
+        );
+        consumer.accept(
+                (EntityType<T>) BGEntityTypes.GLARE.get(),
+                SpawnPlacements.Type.ON_GROUND,
+                Heightmap.Types.MOTION_BLOCKING,
+                GlareEntity::canSpawn
+        );
+        consumer.accept(
+                (EntityType<T>) BGEntityTypes.BIG_BEAK.get(),
+                SpawnPlacements.Type.ON_GROUND,
+                Heightmap.Types.MOTION_BLOCKING,
+                BigBeakEntity::canSpawn
+        );
+        consumer.accept(
+                (EntityType<T>) BGEntityTypes.TRILOBITE.get(),
+                SpawnPlacements.Type.IN_WATER,
+                Heightmap.Types.MOTION_BLOCKING_NO_LEAVES,
+				TrilobiteEntity::checkSurfaceWaterAnimalSpawnRule
+        );
+        consumer.accept(
+                (EntityType<T>) BGEntityTypes.AMOEBA.get(),
+                SpawnPlacements.Type.IN_WATER,
+                Heightmap.Types.MOTION_BLOCKING_NO_LEAVES,
+				TrilobiteEntity::checkSurfaceWaterAnimalSpawnRule
+        );
+        consumer.accept(
+                (EntityType<T>) BGEntityTypes.COPPERBUG.get(),
+                SpawnPlacements.Type.ON_GROUND,
+                Heightmap.Types.MOTION_BLOCKING,
+				CopperbugEntity::canSpawn
+        );
+        consumer.accept(
+                (EntityType<T>) BGEntityTypes.COELACANTH.get(),
+                SpawnPlacements.Type.IN_WATER,
+                Heightmap.Types.MOTION_BLOCKING_NO_LEAVES,
+				CoelacanthEntity::checkSurfaceWaterAnimalSpawnRule
+        );
+        consumer.accept(
+                (EntityType<T>) BGEntityTypes.HAUNT.get(),
+                SpawnPlacements.Type.ON_GROUND,
+                Heightmap.Types.MOTION_BLOCKING,
+                HauntEntity::canSpawn
+        );
+        consumer.accept(
+                (EntityType<T>) BGEntityTypes.PESKY.get(),
+                SpawnPlacements.Type.ON_GROUND,
+                Heightmap.Types.MOTION_BLOCKING,
+                GlareEntity::canSpawn
+        );
+        consumer.accept(
+                (EntityType<T>) BGEntityTypes.PEST.get(),
+                SpawnPlacements.Type.ON_GROUND,
+                Heightmap.Types.MOTION_BLOCKING,
+                GlareEntity::canSpawn
+        );
+        consumer.accept(
+                (EntityType<T>) BGEntityTypes.NECTAUR.get(),
+                SpawnPlacements.Type.ON_GROUND,
+                Heightmap.Types.MOTION_BLOCKING,
+                BigBeakEntity::canSpawn
+        );
+        consumer.accept(
+                (EntityType<T>) BGEntityTypes.WHISKBILL.get(),
+                SpawnPlacements.Type.ON_GROUND,
+                Heightmap.Types.MOTION_BLOCKING,
+                BigBeakEntity::canSpawn
+        );
+        consumer.accept(
+                (EntityType<T>) BGEntityTypes.LITHY.get(),
+                SpawnPlacements.Type.ON_GROUND,
+                Heightmap.Types.MOTION_BLOCKING,
+                LithyEntity::canSpawn
+        );
+        consumer.accept(
+                (EntityType<T>) BGEntityTypes.WISP.get(),
+                SpawnPlacements.Type.ON_GROUND,
+                Heightmap.Types.MOTION_BLOCKING,
+                WispEntity::canSpawn
+        );
+        consumer.accept(
+                (EntityType<T>) BGEntityTypes.GEIST.get(),
+                SpawnPlacements.Type.ON_GROUND,
+                Heightmap.Types.MOTION_BLOCKING,
+                GeistEntity::canSpawn
+        );
+        consumer.accept(
+                (EntityType<T>) BGEntityTypes.WALLOW.get(),
+                SpawnPlacements.Type.ON_GROUND,
+                Heightmap.Types.MOTION_BLOCKING,
+                WraithEntity::canSpawn
+        );
+        consumer.accept(
+                (EntityType<T>) BGEntityTypes.WRAITH.get(),
+                SpawnPlacements.Type.ON_GROUND,
+                Heightmap.Types.MOTION_BLOCKING,
+                WraithEntity::canSpawn
+        );
+        consumer.accept(
+                (EntityType<T>) BGEntityTypes.SABEAST.get(),
+                SpawnPlacements.Type.ON_GROUND,
+                Heightmap.Types.MOTION_BLOCKING,
+                MoobooEntity::canSpawn
+        );
+        consumer.accept(
+                (EntityType<T>) BGEntityTypes.MOOBOO.get(),
+                SpawnPlacements.Type.ON_GROUND,
+                Heightmap.Types.MOTION_BLOCKING,
+                MoobooEntity::canSpawn
+        );
+        consumer.accept(
+                (EntityType<T>) BGEntityTypes.FUNGAL_PARENT.get(),
+                SpawnPlacements.Type.ON_GROUND,
+                Heightmap.Types.MOTION_BLOCKING,
+                FungalParentEntity::canSpawn
+        );
+        consumer.accept(
+                (EntityType<T>) BGEntityTypes.PRIMORDIAL_FISH.get(),
+                SpawnPlacements.Type.IN_WATER,
+                Heightmap.Types.MOTION_BLOCKING_NO_LEAVES,
+				PrimordialFishEntity::checkPrimordialFishEntitySpawnRules
+        );
+    }
+
+    public static void addValidBlocks(BiConsumer<BlockEntityType<?>, Block> consumer) {
+        consumer.accept(BlockEntityType.SIGN, BGBlocks.ANCIENT_SIGN.get());
+        consumer.accept(BlockEntityType.SIGN, BGBlocks.ANCIENT_WALL_SIGN.get());
+
+        consumer.accept(BlockEntityType.HANGING_SIGN, BGBlocks.ANCIENT_HANGING_SIGN.get());
+        consumer.accept(BlockEntityType.HANGING_SIGN, BGBlocks.ANCIENT_WALL_HANGING_SIGN.get());
+
+        consumer.accept(BlockEntityType.SIGN, BGBlocks.SABLE_SIGN.get());
+        consumer.accept(BlockEntityType.SIGN, BGBlocks.SABLE_WALL_SIGN.get());
+
+        consumer.accept(BlockEntityType.HANGING_SIGN, BGBlocks.SABLE_HANGING_SIGN.get());
+        consumer.accept(BlockEntityType.HANGING_SIGN, BGBlocks.SABLE_WALL_HANGING_SIGN.get());
+    }
+
+    public static void addFlammable() {
+        ((FireBlock) Blocks.FIRE).setFlammable(BGBlocks.ANCIENT_WOOD.get(), 5, 20);
+        ((FireBlock) Blocks.FIRE).setFlammable(BGBlocks.ANCIENT_LOG.get(), 5, 20);
+        ((FireBlock) Blocks.FIRE).setFlammable(BGBlocks.ANCIENT_PLANKS.get(), 5, 20);
+        ((FireBlock) Blocks.FIRE).setFlammable(BGBlocks.ANCIENT_SLAB.get(), 5, 20);
+        ((FireBlock) Blocks.FIRE).setFlammable(BGBlocks.ANCIENT_STAIRS.get(), 5, 20);
+        ((FireBlock) Blocks.FIRE).setFlammable(BGBlocks.ANCIENT_PRESSURE_PLATE.get(), 5, 20);
+        ((FireBlock) Blocks.FIRE).setFlammable(BGBlocks.ANCIENT_BUTTON.get(), 5, 20);
+        ((FireBlock) Blocks.FIRE).setFlammable(BGBlocks.ANCIENT_TRAPDOOR.get(), 5, 20);
+        ((FireBlock) Blocks.FIRE).setFlammable(BGBlocks.ANCIENT_FENCE_GATE.get(), 5, 20);
+        ((FireBlock) Blocks.FIRE).setFlammable(BGBlocks.ANCIENT_FENCE.get(), 5, 20);
+        ((FireBlock) Blocks.FIRE).setFlammable(BGBlocks.ANCIENT_DOOR.get(), 5, 20);
+
+        ((FireBlock) Blocks.FIRE).setFlammable(BGBlocks.SABLE_WOOD.get(), 5, 20);
+        ((FireBlock) Blocks.FIRE).setFlammable(BGBlocks.SABLE_LOG.get(), 5, 20);
+        ((FireBlock) Blocks.FIRE).setFlammable(BGBlocks.SABLE_PLANKS.get(), 5, 20);
+        ((FireBlock) Blocks.FIRE).setFlammable(BGBlocks.SABLE_SLAB.get(), 5, 20);
+        ((FireBlock) Blocks.FIRE).setFlammable(BGBlocks.SABLE_STAIRS.get(), 5, 20);
+        ((FireBlock) Blocks.FIRE).setFlammable(BGBlocks.SABLE_PRESSURE_PLATE.get(), 5, 20);
+        ((FireBlock) Blocks.FIRE).setFlammable(BGBlocks.SABLE_BUTTON.get(), 5, 20);
+        ((FireBlock) Blocks.FIRE).setFlammable(BGBlocks.SABLE_TRAPDOOR.get(), 5, 20);
+        ((FireBlock) Blocks.FIRE).setFlammable(BGBlocks.SABLE_FENCE_GATE.get(), 5, 20);
+        ((FireBlock) Blocks.FIRE).setFlammable(BGBlocks.SABLE_FENCE.get(), 5, 20);
+        ((FireBlock) Blocks.FIRE).setFlammable(BGBlocks.SABLE_DOOR.get(), 5, 20);
+    }
+
+    public static boolean isSprinklerNearby(LevelReader world, BlockPos pos) {
+        Iterable<BlockPos> var2 = BlockPos.betweenClosed(pos.offset(-15, 0, -15), pos.offset(15, 1, 15));
+
+        for (BlockPos pos1 : var2) {
+            if (world.getBlockState(pos1).is(JamiesModTag.SPRINKLERS)) {
+                return true;
+            }
+        }
+
+        return false;
+    }
+    
+    public static Stream<Block> getKnownBlocks() {
+        return getKnown(BuiltInRegistries.BLOCK);
+    }
+
+    public static Stream<Item> getKnownItems() {
+        return getKnown(BuiltInRegistries.ITEM);
+    }
+
+    public static <V> Stream<V> getKnown(Registry<V> registry) {
+        return registry.stream().filter(o -> registry.getKey(o).getNamespace().equals(MOD_ID));
+    }
+}
