@@ -6,8 +6,6 @@
   "compatibilityLevel": "JAVA_17",
   "mixins": [
     "AxeItemAccess",
-    "BlockPhasingBehaviourMixin",
-    "BlockPhasingPlayerMixin",
     "BundleItemAccessor",
     "BundleItemMixin",
     "DoorBlockMixin",
@@ -22,12 +20,15 @@
     "MapItemMixin",
     "MobBucketItemMixin",
     "MobMixin",
-    "PhasingCollisionContextMixin",
     "PlayerMixin",
     "ServerLevelMixin",
-    "VexMixin"
+    "VexMixin",
+    "blockPhasing.BlockPhasingBehaviourMixin",
+    "blockPhasing.BlockPhasingEntityMixin",
+    "blockPhasing.BlockPhasingPlayerMixin"
   ],
   "client": [
+    "blockPhasing.LevelRendererMixin",
     "client.BipedEntityModelMixin",
     "client.EntityPhaseMeterGuiMixin",
     "client.ForgeLevelRendererMixin",
