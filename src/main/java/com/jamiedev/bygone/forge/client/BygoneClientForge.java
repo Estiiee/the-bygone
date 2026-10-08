@@ -3,13 +3,16 @@ package com.jamiedev.bygone.forge.client;
 import com.jamiedev.bygone.client.BygoneClient;
 import com.jamiedev.bygone.client.particles.BlemishParticle;
 import com.jamiedev.bygone.client.particles.UpsidedownDropParticle;
+import com.jamiedev.bygone.client.screen.PortalOverlay;
 import com.jamiedev.bygone.common.block.JamiesModWoodType;
 import com.jamiedev.bygone.core.registry.BGParticleTypes;
 import net.minecraft.client.renderer.ItemBlockRenderTypes;
 import net.minecraft.client.renderer.Sheets;
 import net.minecraftforge.client.event.EntityRenderersEvent;
+import net.minecraftforge.client.event.RegisterGuiOverlaysEvent;
 import net.minecraftforge.client.event.RegisterParticleProvidersEvent;
 import net.minecraftforge.eventbus.api.IEventBus;
+import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.event.lifecycle.FMLClientSetupEvent;
 
 public class BygoneClientForge {
@@ -19,6 +22,7 @@ public class BygoneClientForge {
         eventBus.addListener(BygoneClientForge::createRenderers);
         eventBus.addListener(BygoneClientForge::createModelLayers);
         eventBus.addListener(BygoneClientForge::registerParticleFactories);
+        eventBus.addListener(BygoneClientForge::registerGuiOverlays);
     }
 
     static void setup(FMLClientSetupEvent event) {
@@ -45,5 +49,15 @@ public class BygoneClientForge {
         event.registerSpriteSet(BGParticleTypes.UPSIDEDOWN, UpsidedownDropParticle.Provider::new);
 
     }
-
+    
+    private static final PortalOverlay overlay = new PortalOverlay();
+    
+    @SubscribeEvent
+    public static void registerGuiOverlays(RegisterGuiOverlaysEvent event) {
+        event.registerAboveAll(
+                "portal_overlay",
+                (gui, graphics, partialTicks, width, height) ->
+                        overlay.render(graphics, partialTicks)
+        );
+    }
 }

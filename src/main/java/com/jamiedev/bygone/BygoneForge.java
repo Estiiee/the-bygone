@@ -2,7 +2,6 @@ package com.jamiedev.bygone;
 
 import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Sets;
-import com.jamiedev.bygone.client.screen.PortalOverlay;
 import com.jamiedev.bygone.common.block.entity.GumboPotBlockEntity;
 import com.jamiedev.bygone.common.util.ServerTickHandler;
 import com.jamiedev.bygone.common.util.VexDeathTracker;
@@ -30,7 +29,6 @@ import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.material.Fluid;
 import net.minecraft.world.level.material.FluidState;
 import net.minecraft.world.level.pathfinder.BlockPathTypes;
-import net.minecraftforge.client.event.RegisterGuiOverlaysEvent;
 import net.minecraftforge.client.extensions.common.IClientFluidTypeExtensions;
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.common.SoundActions;
@@ -42,7 +40,6 @@ import net.minecraftforge.event.entity.living.LivingDamageEvent;
 import net.minecraftforge.event.entity.living.LivingDeathEvent;
 import net.minecraftforge.event.level.BlockEvent;
 import net.minecraftforge.eventbus.api.IEventBus;
-import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fluids.FluidType;
 import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.fml.event.lifecycle.FMLCommonSetupEvent;
@@ -121,7 +118,6 @@ public class BygoneForge {
         modBus.addListener(this::createAttributes);
         //modBus.addListener(this::addValidBlocks);
         //modBus.addListener(this::modifyDefaultComponents);
-        modBus.addListener(this::registerGuiOverlays);
         //modBus.addListener(BGDataComponentsForge::init);
         forgeBus.addListener(this::blockModifications);
         forgeBus.addListener(this::damageEvent);
@@ -233,16 +229,5 @@ public class BygoneForge {
             }
         );
          */
-    }
-    
-    private final PortalOverlay overlay = new PortalOverlay();
-    
-    @SubscribeEvent
-    public void registerGuiOverlays(RegisterGuiOverlaysEvent event) {
-        event.registerAboveAll(
-                "portal_overlay",
-                (gui, graphics, partialTicks, width, height) ->
-                        overlay.render(graphics, partialTicks)
-        );
     }
 }

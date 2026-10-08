@@ -21,7 +21,6 @@
     "MobBucketItemMixin",
     "MobMixin",
     "PlayerMixin",
-    "ServerLevelMixin",
     "VexMixin",
     "blockPhasing.BlockPhasingBehaviourMixin",
     "blockPhasing.BlockPhasingPlayerMixin"
@@ -40,7 +39,9 @@
     "client.MixinItemRenderer",
     "client.MixinPlayerEntityRenderer"
   ],
-  "server": [],
+  "server": [
+    "ServerLevelMixin"
+  ],
   "injectors": {
     "defaultRequire": 1
 	}

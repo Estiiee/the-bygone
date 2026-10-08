@@ -133,7 +133,7 @@ public class BygonePortalEntity extends LivingEntity {
                     if (remaining > 0) {
                         teleportCountdown.put(player, remaining - 1);
                         player.handleInsidePortal(this.blockPosition());
-                        if (player instanceof LocalPlayer localPlayer) localPlayer.spinningEffectIntensity = 0.5f;
+                        //if (player instanceof LocalPlayer localPlayer) localPlayer.spinningEffectIntensity = 0.5f;
 
                     } else {
                         teleportCountdown.remove(player);
@@ -177,10 +177,10 @@ public class BygonePortalEntity extends LivingEntity {
             }
         }
 
-        if (!teleportCountdown.entrySet().isEmpty()) {
+        if (!teleportCountdown.isEmpty()) {
             teleportCountdown.forEach((player, integer) -> {
-                if (player.distanceTo(this) > 3 && player instanceof LocalPlayer localPlayer) {
-                    localPlayer.isInsidePortal = false;
+                if (player.distanceTo(this) > 3 && level().isClientSide) {
+                    player.isInsidePortal = false;
                 }
             });
 
