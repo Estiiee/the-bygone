@@ -222,6 +222,45 @@ public class BGEntityTypes {
                     .sized(1.0F, 2.0F)
                     .build("")
     );
+    
+    public static final Supplier<EntityType<MournEntity>> MOURN = registerEntityType(
+            "mourn",
+            () -> EntityType.Builder.of(MournEntity::new, MobCategory.CREATURE)
+                    .immuneTo(BGBlocks.ICE_BOUQUET.get())
+                    .fireImmune()
+                    .sized(0.7F, 2.3F)
+                    .clientTrackingRange(8)
+                    .build("")
+    );
+    
+    public static final Supplier<EntityType<WhisperEntity>> WHISPER = registerEntityType(
+            "whisper",
+            () -> EntityType.Builder.of(WhisperEntity::new, MobCategory.CREATURE)
+                    .immuneTo(BGBlocks.ICE_BOUQUET.get())
+                    .fireImmune()
+                    .sized(0.6F, 1.4F)
+                    .clientTrackingRange(8)
+                    .build("")
+    );
+    
+    public static final Supplier<EntityType<ScareEntity>> SCARE = registerEntityType(
+            "scare",
+            () -> EntityType.Builder.of(ScareEntity::new, MobCategory.CREATURE)
+                    .immuneTo(BGBlocks.ICE_BOUQUET.get())
+                    .fireImmune()
+                    .sized(0.8F, 1.7F)
+                    .clientTrackingRange(8)
+                    .build("")
+    );
+    
+    public static final Supplier<EntityType<ScareBoltEntity>> SCARE_BOLT = registerEntityType(
+            "scare_bolt",
+            () -> EntityType.Builder.<ScareBoltEntity>of(ScareBoltEntity::new, MobCategory.MISC)
+                    .sized(0.4F, 0.4F)
+                    .clientTrackingRange(6)
+                    .updateInterval(10)
+                    .build("")
+    );
 
     public static final Supplier<EntityType<SabeastEntity>> SABEAST = registerEntityType(
             "sabeast",

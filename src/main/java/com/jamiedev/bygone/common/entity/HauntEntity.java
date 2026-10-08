@@ -10,19 +10,26 @@ import net.minecraft.core.particles.DustParticleOptions;
 import net.minecraft.network.syncher.EntityDataAccessor;
 import net.minecraft.network.syncher.EntityDataSerializers;
 import net.minecraft.network.syncher.SynchedEntityData;
+import net.minecraft.util.Mth;
 import net.minecraft.util.RandomSource;
 import net.minecraft.world.Difficulty;
+import net.minecraft.world.damagesource.DamageSource;
 import net.minecraft.world.effect.MobEffect;
 import net.minecraft.world.effect.MobEffectInstance;
 import net.minecraft.world.effect.MobEffects;
 import net.minecraft.world.entity.*;
+import net.minecraft.world.entity.ai.attributes.AttributeSupplier;
+import net.minecraft.world.entity.ai.attributes.Attributes;
 import net.minecraft.world.entity.ai.goal.Goal;
+import net.minecraft.world.entity.ai.goal.MoveToBlockGoal;
 import net.minecraft.world.entity.ai.goal.RandomStrollGoal;
 import net.minecraft.world.entity.ai.goal.target.NearestAttackableTargetGoal;
 import net.minecraft.world.entity.animal.allay.Allay;
 import net.minecraft.world.entity.monster.Vex;
+import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.LevelAccessor;
+import net.minecraft.world.level.LevelReader;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.Vec3;
@@ -48,6 +55,11 @@ public class HauntEntity extends Allay {
         super(entityType, level);
     }
     
+    public static AttributeSupplier.Builder createAttributes() {
+        return Allay.createAttributes()
+                .add(Attributes.FOLLOW_RANGE, 24.0);
+    }
+    
     public void registerGoals()
     {
         super.registerGoals();
@@ -61,10 +73,20 @@ public class HauntEntity extends Allay {
             return state.is(BGBlocks.LITHOPLASMIC_POWDER.get());
         }));
         this.goalSelector.addGoal(4, new HauntEntityAttackGoal(this));
+        this.goalSelector.addGoal(5, new HauntGotoTotemGoal(this, 1.0, 16));
         this.targetSelector.addGoal(1, new NearestAttackableTargetGoal<>(this, LivingEntity.class, 10, true, false, new HauntEntityAttackSelector(this)));
         this.randomStrollGoal.setFlags(EnumSet.of(Goal.Flag.MOVE, Goal.Flag.LOOK));
     }
-
+    
+    @Override
+    public boolean hurt(DamageSource source, float amount) {
+        Entity attacker = source.getEntity();
+        if (attacker instanceof LivingEntity living && !(living instanceof Player) && !(living instanceof SabeastEntity)) {
+            return false;
+        }
+        return super.hurt(source, amount);
+    }
+    
     private void setupAnimationStates() {
 
         this.idleAnimationState.startIfStopped(this.tickCount);
@@ -234,6 +256,11 @@ public class HauntEntity extends Allay {
     }
 
     static class HauntEntityAttackGoal extends Goal {
+        protected static final int ORBIT_PERIOD = 100;
+        protected static final double ORBIT_RADIUS = 3.5;
+        protected static final double ORBIT_HEIGHT = 1.5;
+        protected static final double ORBIT_SPEED = 1.2;
+        
         private final HauntEntity haunt;
         private int attackTime;
 
@@ -277,6 +304,13 @@ public class HauntEntity extends Allay {
             LivingEntity livingentity = this.haunt.getTarget();
             if (livingentity != null) {
                 this.haunt.getNavigation().stop();
+                float orbitAngle = (this.haunt.tickCount % ORBIT_PERIOD) / (float) ORBIT_PERIOD * ((float) Math.PI * 2F);
+                this.haunt.getMoveControl().setWantedPosition(
+                        livingentity.getX() + Mth.cos(orbitAngle) * ORBIT_RADIUS,
+                        livingentity.getY() + ORBIT_HEIGHT,
+                        livingentity.getZ() + Mth.sin(orbitAngle) * ORBIT_RADIUS,
+                        ORBIT_SPEED
+                );
                 this.haunt.getLookControl().setLookAt(livingentity, 90.0F, 90.0F);
                 if (!this.haunt.hasLineOfSight(livingentity)) {
                     this.haunt.setTarget((LivingEntity)null);
@@ -305,7 +339,20 @@ public class HauntEntity extends Allay {
 
         }
     }
-
+    
+    static class HauntGotoTotemGoal extends MoveToBlockGoal
+    {
+        public HauntGotoTotemGoal(HauntEntity haunt, double speedModifier, int searchRange) {
+            super(haunt, speedModifier, searchRange);
+        }
+        
+        @Override
+        protected boolean isValidTarget(LevelReader level, BlockPos pos) {
+            BlockState state = level.getBlockState(pos);
+            return (state.is(BGBlocks.MEGALITH_TOTEM.get())) && level.isEmptyBlock(pos.above());
+        }
+    }
+    
     static class HauntEntityAttackSelector implements Predicate<LivingEntity> {
         private final HauntEntity haunt;
 
@@ -314,7 +361,8 @@ public class HauntEntity extends Allay {
         }
 
         public boolean test(@Nullable LivingEntity entity) {
-            return (entity instanceof MoobooEntity || entity instanceof WraithEntity || entity instanceof Vex)
+            return entity != null && !(entity instanceof HauntEntity)
+                    && (entity.getType().is(JamiesModTag.SPECTRAL) || entity instanceof Vex)
                     && entity.distanceToSqr(this.haunt) > (double)9.0F;
         }
     }

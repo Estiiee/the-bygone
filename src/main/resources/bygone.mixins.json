@@ -24,7 +24,6 @@
     "ServerLevelMixin",
     "VexMixin",
     "blockPhasing.BlockPhasingBehaviourMixin",
-    "blockPhasing.BlockPhasingEntityMixin",
     "blockPhasing.BlockPhasingPlayerMixin"
   ],
   "client": [

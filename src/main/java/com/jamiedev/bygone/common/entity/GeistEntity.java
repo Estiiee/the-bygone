@@ -1,5 +1,6 @@
 package com.jamiedev.bygone.common.entity;
 
+import com.jamiedev.bygone.Bygone;
 import com.jamiedev.bygone.common.entity.ai.AvoidBlockGoal;
 import com.jamiedev.bygone.common.entity.ai.goal.GeistGotoLightGoal;
 import com.jamiedev.bygone.common.entity.ai.goal.GeistSwoopAttackGoal;
@@ -13,10 +14,13 @@ import net.minecraft.core.BlockPos;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.syncher.EntityDataAccessor;
 import net.minecraft.network.syncher.SynchedEntityData;
+import net.minecraft.resources.ResourceLocation;
 import net.minecraft.sounds.SoundEvent;
 import net.minecraft.util.RandomSource;
 import net.minecraft.world.damagesource.DamageSource;
 import net.minecraft.world.entity.*;
+import net.minecraft.world.entity.ai.attributes.AttributeInstance;
+import net.minecraft.world.entity.ai.attributes.AttributeModifier;
 import net.minecraft.world.entity.ai.attributes.AttributeSupplier;
 import net.minecraft.world.entity.ai.attributes.Attributes;
 import net.minecraft.world.entity.ai.control.FlyingMoveControl;
@@ -36,6 +40,7 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.Optional;
+import java.util.UUID;
 
 public class GeistEntity extends Monster implements FlyingAnimal {
 
@@ -44,6 +49,14 @@ public class GeistEntity extends Monster implements FlyingAnimal {
     public AnimationState meleeAnimationState = new AnimationState();
 
     public static final int DEFAULT_LIGHT_THRESHOLD = 1;
+    public static final double AGGRO_SPEED_MULTIPLIER = 1.0;
+    private static final UUID AGGRO_SPEED_MODIFIER_ID = UUID.fromString("b52f8a17-3c64-4e9d-9d01-6f7a2c84e5d3");
+    private static final AttributeModifier AGGRO_SPEED_MODIFIER = new AttributeModifier(
+            AGGRO_SPEED_MODIFIER_ID,
+            "Geist aggro speed",
+            AGGRO_SPEED_MULTIPLIER,
+            AttributeModifier.Operation.MULTIPLY_TOTAL
+    );
 
     public static final EntityDataAccessor<Integer> LIGHT_THRESHOLD = SynchedEntityData.defineId(GeistEntity.class, EntityDataSerializers.INT);
 
@@ -85,8 +98,39 @@ public class GeistEntity extends Monster implements FlyingAnimal {
         this.goalSelector.addGoal(9, new LookAtPlayerGoal(this, Player.class, 3, 1));
         this.targetSelector.addGoal(1, new HurtByTargetGoal(this, WraithEntity.class).setAlertOthers());
         this.targetSelector.addGoal(2, new NearestAttackableTargetGoal<>(this, Player.class, true, this::targetTooClose));
+        this.targetSelector.addGoal(3, new NearestAttackableTargetGoal<>(this, Mob.class, 10, true, false,
+                (mob) -> this.targetTooClose(mob) && !mob.getType().is(JamiesModTag.SPECTRAL)));
     }
-
+    
+    @Override
+    public void setTarget(@Nullable LivingEntity target) {
+        if (target != null && this.getTarget() == null && !this.level().isClientSide()) {
+            this.playSound(BGSoundEvents.GEIST_AMBIENT_ANGRY_EVENT, 2.0F, 1.2F);
+        }
+        super.setTarget(target);
+    }
+    
+    @Override
+    protected void customServerAiStep() {
+        super.customServerAiStep();
+        boolean aggro = this.getTarget() != null;
+        this.setAggressive(aggro);
+        this.updateAggroSpeed(this.getAttribute(Attributes.FLYING_SPEED), aggro);
+        this.updateAggroSpeed(this.getAttribute(Attributes.MOVEMENT_SPEED), aggro);
+    }
+    
+    private void updateAggroSpeed(@Nullable AttributeInstance attribute, boolean aggro) {
+        if (attribute == null) {
+            return;
+        }
+        if (aggro) {
+            if (!attribute.hasModifier(AGGRO_SPEED_MODIFIER)) {
+                attribute.addTransientModifier(AGGRO_SPEED_MODIFIER);
+            }
+        } else {
+            attribute.removeModifier(AGGRO_SPEED_MODIFIER);
+        }
+    }
 
     public boolean targetTooClose(LivingEntity entity) {
         return this.distanceTo(entity) <= 3;

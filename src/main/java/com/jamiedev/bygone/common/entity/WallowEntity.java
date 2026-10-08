@@ -44,6 +44,7 @@ public class WallowEntity extends PathfinderMob
 
     @Override
     protected void registerGoals() {
+        this.goalSelector.addGoal(0, new AvoidEntityGoal<>(this, HauntEntity.class, 16, 1, 1.5F));
         this.goalSelector.addGoal(1, new WallowEntity.RandomFloatAroundGoal(this));
         this.goalSelector.addGoal(2, new WallowEntity.WallowEntityLookGoal(this));
         this.goalSelector.addGoal(3, new FollowMobGoal(this, 1.0, 3.0F, 7.0F));
@@ -100,14 +101,27 @@ public class WallowEntity extends PathfinderMob
                 .add(Attributes.MOVEMENT_SPEED, 0.01)
                 .add(Attributes.FOLLOW_RANGE, 10.0);
     }
-
-    @Override
-    public void playerTouch(@NotNull Player entity) {
-        int i = 1;
-        if (entity instanceof ServerPlayer && entity.hurt(this.damageSources().mobAttack(this), (float) (1 + i))) {
-            this.playSound(BGSoundEvents.WALLOW_FREEZE_ADDITIONS_EVENT, 0.7F, 1.2F + this.random.nextFloat() * 0.2F);
-            this.playSound(SoundEvents.PLAYER_HURT_FREEZE, 0.25F, 0.75F);
-            entity.hurt(this.damageSources().freeze(), i + random.nextInt(6));
+    
+    public static final int FREEZE_LINGER = 200;
+    
+    private void freezeTouchingEntities() {
+        List<LivingEntity> touching = this.level().getEntitiesOfClass(
+                LivingEntity.class,
+                this.getBoundingBox().inflate(0.2),
+                (entity) -> entity != this
+                        && entity.canFreeze()
+                        && !entity.getType().is(JamiesModTag.NOT_FREEZE_WALLOW)
+                        && !entity.getType().is(JamiesModTag.SPECTRAL)
+        );
+        for (LivingEntity target : touching) {
+            boolean wasFullyFrozen = target.isFullyFrozen();
+            int fullFreeze = target.getTicksRequiredToFreeze() + FREEZE_LINGER;
+            if (target.getTicksFrozen() < fullFreeze) {
+                target.setTicksFrozen(fullFreeze);
+            }
+            if (!wasFullyFrozen) {
+                this.playSound(SoundEvents.PLAYER_HURT_FREEZE, 1.0F, 1.0F);
+            }
         }
     }
     
@@ -153,32 +167,43 @@ public class WallowEntity extends PathfinderMob
         if  (collidingHurtSpectralBlocks())
         {
             this.hurt(BGDamageTypes.source(this.level(), BGDamageTypes.HAUNTED, this, this.getLastAttacker()), 1);
- 
         }
-
-
+        
+        if (!this.level().isClientSide()) {
+            this.freezeTouchingEntities();
+        }
+        
         noPhysics = !collidingSpectralBlocks();
-
+    }
+    
+    @Override
+    protected SoundEvent getAmbientSound() {
+        return BGSoundEvents.WALLOW_AMBIENT_EVENT;
+    }
+    
+    @Override
+    public int getAmbientSoundInterval() {
+        return 60;
+    }
+    
+    @Override
+    protected @NotNull SoundEvent getHurtSound(@NotNull DamageSource damageSource) {
+        return BGSoundEvents.WALLOW_HURT_EVENT;
+    }
+    
+    @Override
+    protected @NotNull SoundEvent getDeathSound() {
+        return BGSoundEvents.WALLOW_DEATH_EVENT;
+    }
+    
+    @Override
+    public boolean canFreeze() {
+        return false;
     }
     
     @Override
     protected float getStandingEyeHeight(Pose pose, EntityDimensions dimensions) {
         return 0.36F;
-    }
-    
-    @Override
-    protected SoundEvent getAmbientSound() {
-        return BGSoundEvents.WALLOW_AMBIENT_ADDITIONS_EVENT;
-    }
-    
-    @Override
-    protected SoundEvent getHurtSound(DamageSource damageSource) {
-        return BGSoundEvents.WALLOW_HURT_ADDITIONS_EVENT;
-    }
-    
-    @Override
-    protected SoundEvent getDeathSound() {
-        return BGSoundEvents.WALLOW_DEATH_ADDITIONS_EVENT;
     }
 
     static class WallowEntityLookGoal extends Goal {

@@ -361,6 +361,26 @@ public class BGItems {
             "wraith_spawn_egg",
             BGEntityTypes.WRAITH, 0x3c3c3c, 0x9de8c0, new Item.Properties()
     );
+    public static final Supplier<Item> REAVER_SPAWN_EGG = Services.PLATFORM.registerSpawnEgg(
+            "reaver_spawn_egg",
+            BGEntityTypes.REAVER, 0x2e4a5c, 0x8fd4c4, new Item.Properties()
+    );
+    public static final Supplier<Item> WALLOW_SPAWN_EGG = Services.PLATFORM.registerSpawnEgg(
+            "wallow_spawn_egg",
+            BGEntityTypes.WALLOW, 0x9fc7d9, 0xdff2f5, new Item.Properties()
+    );
+    public static final Supplier<Item> MOURN_SPAWN_EGG = Services.PLATFORM.registerSpawnEgg(
+            "mourn_spawn_egg",
+            BGEntityTypes.MOURN, 0x101018, 0x3d3d55, new Item.Properties()
+    );
+    public static final Supplier<Item> WHISPER_SPAWN_EGG = Services.PLATFORM.registerSpawnEgg(
+            "whisper_spawn_egg",
+            BGEntityTypes.WHISPER, 0xcfe8e6, 0x9fc4c9, new Item.Properties()
+    );
+    public static final Supplier<Item> SCARE_SPAWN_EGG = Services.PLATFORM.registerSpawnEgg(
+            "scare_spawn_egg",
+            BGEntityTypes.SCARE, 0x4a3a5e, 0x8a6fae, new Item.Properties()
+    );
     public static final Supplier<Item> AMOEBA_BUCKET = registerItem(
             (String) "bucket_o_amoeba", () ->
                     new MobBucketItem(

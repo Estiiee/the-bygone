@@ -22,6 +22,7 @@ public class BGMobEffects {
 	public static Supplier<Holder<MobEffect>> PLASMILK;
     public static Supplier<Holder<MobEffect>> SIPHONING;
     public static Supplier<Holder<MobEffect>> CARAPACE;
+    public static Supplier<Holder<MobEffect>> PARALYZED;
     
     @SuppressWarnings("unchecked")
     private static <T extends MobEffect> Supplier<Holder<MobEffect>> register(String name, Supplier<T> supplier) {
@@ -40,7 +41,8 @@ public class BGMobEffects {
         ASPHYXIATING = register("asphyxiating", () -> new AsphyxiatingEffect(MobEffectCategory.HARMFUL, 0x5aafcf));
         PLASMILK = register("plasmilk", () -> new PlasmilkEffect(MobEffectCategory.NEUTRAL, 0x83ffe0));
         SIPHONING = register("siphoning", () -> new SiphoningEffect(MobEffectCategory.HARMFUL, 0x68b6d3));
-       //TODO Forge again because me lazy
+        PARALYZED = register("paralyzed", ParalyzedEffect::new);
+        //TODO Forge again because me lazy
         CARAPACE = register("carapace", () ->
                 new PublicMobEffect(MobEffectCategory.BENEFICIAL, 0x67CEEB)
                         .addAttributeModifier(ForgeMod.SWIM_SPEED.get(), UUID.fromString("c6f8b3e2-9d4a-4f1b-8f0a-2d9b6e3a1c77").toString(), 1, AttributeModifier.Operation.ADDITION));
