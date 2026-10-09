@@ -18,6 +18,7 @@ import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.sounds.SoundEvents;
+import net.minecraft.world.entity.MobCategory;
 import net.minecraft.world.entity.monster.Vex;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.level.GameRules;
@@ -48,6 +49,7 @@ import net.minecraftforge.fml.loading.FMLEnvironment;
 import net.minecraftforge.registries.*;
 import org.jetbrains.annotations.NotNull;
 
+import java.util.Arrays;
 import java.util.Set;
 import java.util.function.Consumer;
 import java.util.function.Supplier;
@@ -102,6 +104,7 @@ public class BygoneForge {
         //BGDataComponentsForge.DATA_COMPONENTS.register(modBus);
         //BGDecoratedPotPatternsNeoForge.POT_PATTERNS.register(modBus);
         BGAttributesForge.init(modBus);
+        BGMobCategories.init();
         Bygone.init();
 
         fluidRegister.register(modBus);
@@ -189,6 +192,9 @@ public class BygoneForge {
             GumboPotBlockEntity.GumboScooping.setFilled(Items.BOWL, BGItems.GUMBO_BOWL.get());
             GumboPotBlockEntity.GumboScooping.setFilled(Items.GLASS_BOTTLE, BGItems.GUMBO_BOTTLE.get());
             BGDataComponents.gumboBootstrap(BGDataComponents.GUMBO_INGREDIENT_REGISTRY::put);
+            
+            System.out.println(Arrays.toString(MobCategory.values()));
+            System.out.println("dupa");
         });
     }
 

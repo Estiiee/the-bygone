@@ -3,6 +3,7 @@ package com.jamiedev.bygone.core.registry;
 import com.jamiedev.bygone.Bygone;
 import com.jamiedev.bygone.common.entity.*;
 import com.jamiedev.bygone.common.entity.projectile.*;
+import com.jamiedev.bygone.common.weather.weather_types.HauntingsCategoryHolder;
 import com.kekecreations.jinxedlib.core.util.JinxedRegistryHelper;
 import net.minecraft.core.Registry;
 import net.minecraft.core.registries.BuiltInRegistries;
@@ -179,7 +180,7 @@ public class BGEntityTypes {
 
     public static final Supplier<EntityType<WallowEntity>> WALLOW = registerEntityType(
             "wallow",
-            () -> EntityType.Builder.of(WallowEntity::new, MobCategory.CREATURE)
+            () -> EntityType.Builder.of(WallowEntity::new,  HauntingsCategoryHolder.HAUNTING_MOB_CATEGORY)
                     .sized(0.35F, 0.35F)
                     .clientTrackingRange(8)
                     .updateInterval(2)
@@ -197,7 +198,7 @@ public class BGEntityTypes {
 
     public static final Supplier<EntityType<HauntEntity>> HAUNT = registerEntityType(
             "haunt",
-            () -> EntityType.Builder.of(HauntEntity::new, MobCategory.CREATURE)
+            () -> EntityType.Builder.of(HauntEntity::new,  HauntingsCategoryHolder.HAUNTING_MOB_CATEGORY)
                     .sized(0.35F, 0.35F)
                     .fireImmune()
                     .clientTrackingRange(8)
@@ -207,7 +208,7 @@ public class BGEntityTypes {
 
     public static final Supplier<EntityType<GeistEntity>> GEIST = registerEntityType(
             "geist",
-            () -> EntityType.Builder.of(GeistEntity::new, MobCategory.CREATURE)
+            () -> EntityType.Builder.of(GeistEntity::new,  HauntingsCategoryHolder.HAUNTING_MOB_CATEGORY)
                     .immuneTo(BGBlocks.ICE_BOUQUET.get())
                     .fireImmune()
                     .sized(1.0F, 2.0F)
@@ -216,7 +217,7 @@ public class BGEntityTypes {
 
     public static final Supplier<EntityType<WraithEntity>> WRAITH = registerEntityType(
             "wraith",
-            () -> EntityType.Builder.of(WraithEntity::new, MobCategory.CREATURE)
+            () -> EntityType.Builder.of(WraithEntity::new,  HauntingsCategoryHolder.HAUNTING_MOB_CATEGORY)
                     .immuneTo(BGBlocks.ICE_BOUQUET.get())
                     .fireImmune()
                     .sized(1.0F, 2.0F)

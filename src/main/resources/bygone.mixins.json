@@ -20,7 +20,9 @@
     "MapItemMixin",
     "MobBucketItemMixin",
     "MobMixin",
+    "NaturalSpawnerMixin",
     "PlayerMixin",
+    "SpawnStateMixin",
     "VexMixin",
     "blockPhasing.BlockPhasingBehaviourMixin",
     "blockPhasing.BlockPhasingPlayerMixin"

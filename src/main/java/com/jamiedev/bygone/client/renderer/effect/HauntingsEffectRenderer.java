@@ -24,9 +24,10 @@ public class HauntingsEffectRenderer {
     public PostChain postChain;
     public void setupPostChain() throws IOException {
         Minecraft minecraft = Minecraft.getInstance();
-        postChain = new PostChain(minecraft.getTextureManager(), minecraft.getResourceManager(),
-                minecraft.getMainRenderTarget(), HAUNTINGS_SHADER);
-        postChain.resize(minecraft.getWindow().getWidth(), minecraft.getWindow().getHeight());
+        postChain = new PostChain(
+                minecraft.getTextureManager(), minecraft.getResourceManager(),
+                minecraft.getMainRenderTarget(), HAUNTINGS_SHADER
+        );
     }
     
     public float progress = 0.0f;

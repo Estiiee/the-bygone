@@ -54,8 +54,10 @@ public class BGEvents {
 
     @SubscribeEvent
     public static void onEntityJoinLevel(final EntityJoinLevelEvent event) {
-        if (event.getEntity() instanceof ServerPlayer serverPlayer)
-            BygoneWeather.getOrDefault(serverPlayer.serverLevel()).informPlayerOfState(serverPlayer);
+        if (event.getEntity() instanceof ServerPlayer serverPlayer) {
+            BygoneWeather weather = BygoneWeather.getOrDefault(serverPlayer.serverLevel());
+            if (weather != null) weather.informPlayerOfState(serverPlayer);
+        }
     }
 
     
