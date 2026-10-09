@@ -1,27 +1,26 @@
 package com.jamiedev.bygone.core.mixin;
 
 import com.jamiedev.bygone.Bygone;
-import com.jamiedev.bygone.common.weather.BygoneWeather;
 import com.jamiedev.bygone.common.weather.weather_types.HauntingsCategoryHolder;
+import com.llamalad7.mixinextras.injector.wrapoperation.Operation;
+import com.llamalad7.mixinextras.injector.wrapoperation.WrapOperation;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.util.RandomSource;
 import net.minecraft.world.entity.EntityType;
+import net.minecraft.world.entity.Mob;
 import net.minecraft.world.entity.MobCategory;
-import net.minecraft.world.level.Level;
+import net.minecraft.world.level.ChunkPos;
 import net.minecraft.world.level.NaturalSpawner;
 import net.minecraft.world.level.StructureManager;
 import net.minecraft.world.level.biome.MobSpawnSettings;
 import net.minecraft.world.level.chunk.ChunkGenerator;
-import net.minecraft.world.level.chunk.LevelChunk;
 import org.spongepowered.asm.mixin.Mixin;
-import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.Unique;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
-import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 
 import java.util.List;
@@ -30,85 +29,60 @@ import java.util.Optional;
 @Mixin(NaturalSpawner.class)
 public class NaturalSpawnerMixin {
     
-    private static final @Unique ResourceLocation HAUNTINGS_LOCATION = Bygone.id("hauntings");
-    
-    @Shadow
-    private static BlockPos getRandomPosWithin(Level level, LevelChunk chunk) {
-        throw new UnsupportedOperationException("Implemented via mixin");
+    @WrapOperation(
+            method = "spawnForChunk",
+            at = @At(
+                    value = "INVOKE",
+                    target = "Lnet/minecraft/world/level/NaturalSpawner$SpawnState;canSpawnForCategory(Lnet/minecraft/world/entity/MobCategory;Lnet/minecraft/world/level/ChunkPos;)Z"
+            )
+    )
+    private static boolean bygone$canSpawnForHauntingsCategory(
+            NaturalSpawner.SpawnState spawnState, MobCategory category, ChunkPos pos, Operation<Boolean> original,
+            ServerLevel level
+    ) {
+        if (category == HauntingsCategoryHolder.HAUNTING_MOB_CATEGORY
+                && !HauntingsCategoryHolder.checkHauntingsActive(level)) return false;
+        return original.call(spawnState, category, pos);
     }
-
-//    @Inject(method = "isValidSpawnPostitionForType", at = @At("HEAD"), cancellable = true)
-//    private static void bygone$hauntingsAllowSpawning(
-//        ServerLevel level, MobCategory category, StructureManager structureManager,
-//        ChunkGenerator generator, MobSpawnSettings.SpawnerData data, BlockPos.MutableBlockPos pos,
-//        double distance, CallbackInfoReturnable<Boolean> cir
-//    ) {
-//        if (!data.type.getCategory().equals(HauntingsCategoryHolder.HAUNTING_MOB_CATEGORY)) return;
-//
-//        // only if the hauntings are actually active do mob spawns bypass required biome spawns
-//        BygoneWeather weather = BygoneWeather.getOrDefault(level);
-//        if (weather == null) return;
-//
-//        weather.getWeatherType(HAUNTINGS_LOCATION).ifPresent(hauntings -> {
-//            boolean noCollision = level.noCollision(
-//                data.type.getSpawnAABB(pos.getX() + 0.5F, pos.getY(), pos.getZ() + 0.5F)
-//            );
-//            if (hauntings.isActive() && noCollision) cir.setReturnValue(true);
-//        });
-//    }
     
     @Inject(method = "getRandomSpawnMobAt", at = @At("HEAD"), cancellable = true)
-    private static void bygone$injectMobPool(
+    private static void bygone$getHauntingsMobPool(
             ServerLevel level, StructureManager structureManager, ChunkGenerator generator,
             MobCategory category, RandomSource random, BlockPos pos,
             CallbackInfoReturnable<Optional<MobSpawnSettings.SpawnerData>> cir
     ) {
-        if (!category.equals(HauntingsCategoryHolder.HAUNTING_MOB_CATEGORY)) return;
+        if (category != HauntingsCategoryHolder.HAUNTING_MOB_CATEGORY) return;
+        if (!HauntingsCategoryHolder.checkHauntingsActive(level)) return;
         
         List<EntityType<?>> mobs = BuiltInRegistries.ENTITY_TYPE.stream()
                 .filter(type -> type.getCategory() == category).toList();
         EntityType<?> chosen = mobs.get(random.nextInt(mobs.size()));
         
         cir.setReturnValue(Optional.of(new MobSpawnSettings.SpawnerData(
-                chosen, 5, 1, 1
+                chosen, 10, 1, 2
         )));
     }
     
-    @Inject(method = "spawnForChunk", at = @At("TAIL"))
-    private static void bygone$spawnForHauntings(
-            ServerLevel level, LevelChunk chunk,
-            NaturalSpawner.SpawnState spawnState,
-            boolean spawnFriendlies, boolean spawnMonsters,
-            boolean forcedDespawn, CallbackInfo ci
+    @Inject(method = "isValidSpawnPostitionForType", at = @At("HEAD"), cancellable = true)
+    private static void bygone$allowHauntingsOnValidGround(
+            ServerLevel level, MobCategory category, StructureManager structureManager,
+            ChunkGenerator generator, MobSpawnSettings.SpawnerData data, BlockPos.MutableBlockPos pos,
+            double distance, CallbackInfoReturnable<Boolean> cir
     ) {
-        BygoneWeather weather = BygoneWeather.getOrDefault(level);
-        if (weather == null) return;
+        if (category != HauntingsCategoryHolder.HAUNTING_MOB_CATEGORY) return;
+        if (data.type.getCategory() != HauntingsCategoryHolder.HAUNTING_MOB_CATEGORY) return;
+        if (!HauntingsCategoryHolder.checkHauntingsActive(level)) return;
         
-        // deliberately spawn the mobs using the correct category during hauntings
-        weather.getWeatherType(HAUNTINGS_LOCATION).ifPresent(hauntings -> {
-            if (hauntings.isActive()
-                    && spawnState.canSpawnForCategory(HauntingsCategoryHolder.HAUNTING_MOB_CATEGORY, chunk.getPos())
-                    && spawnState.canSpawnForCategory(MobCategory.CREATURE, chunk.getPos())
-            ) {
-                // naive currently but checks will come in later
-                BlockPos.MutableBlockPos blockpos = getRandomPosWithin(level, chunk).mutable();
-//               while (blockpos.getY() > level.getMinBuildHeight()) {
-//                   BlockState state = level.getBlockState(blockpos);
-//                   if (!state.getCollisionShape(level, blockpos).isEmpty()) {
-//                       Bygone.LOGGER.info("phasing mob");
-//                       break;
-//                   }
-//                   blockpos.setY(blockpos.getY() - 1);
-//               }
-//               if (blockpos.getY() <= level.getMinBuildHeight()) return;
-                
-                //spawnCategoryForPosition(
-                //        HauntingsCategoryHolder.HAUNTING_MOB_CATEGORY,
-                //        level, chunk, blockpos, (var1, var2, var3)
-                //                -> level.getRandom().nextDouble() < 0.24d,
-                //        (mob, var2) -> {}
-                //);
-            }
-        });
+        cir.setReturnValue(level.noCollision(data.type.getAABB(pos.getX() + 0.5D, pos.getY(), pos.getZ() + 0.5D)));
+    }
+    
+    @Inject(method = "isValidPositionForMob", at = @At("HEAD"), cancellable = true)
+    private static void bygone$allowHauntingsMobPosition(
+            ServerLevel level, Mob mob, double distance, CallbackInfoReturnable<Boolean> cir
+    ) {
+        if (mob.getType().getCategory() != HauntingsCategoryHolder.HAUNTING_MOB_CATEGORY) return;
+        if (!HauntingsCategoryHolder.checkHauntingsActive(level)) return;
+        
+        cir.setReturnValue(true);
     }
 }

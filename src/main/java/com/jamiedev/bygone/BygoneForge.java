@@ -192,9 +192,6 @@ public class BygoneForge {
             GumboPotBlockEntity.GumboScooping.setFilled(Items.BOWL, BGItems.GUMBO_BOWL.get());
             GumboPotBlockEntity.GumboScooping.setFilled(Items.GLASS_BOTTLE, BGItems.GUMBO_BOTTLE.get());
             BGDataComponents.gumboBootstrap(BGDataComponents.GUMBO_INGREDIENT_REGISTRY::put);
-            
-            System.out.println(Arrays.toString(MobCategory.values()));
-            System.out.println("dupa");
         });
     }
 

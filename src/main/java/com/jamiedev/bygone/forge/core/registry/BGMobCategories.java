@@ -9,10 +9,10 @@ public final class BGMobCategories {
     public static final MobCategory HAUNTINGS_MOB = MobCategory.create(
             "BYGONE_HAUNTINGS_MOB",
             "bygone_hauntings_mobs",
-            1,
+            50,
             false,
             false,
-            128
+            64
     );
     
     private BGMobCategories() {
