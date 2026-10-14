@@ -11,6 +11,7 @@ import com.jamiedev.bygone.core.registry.BGParticleTypes;
 import com.jamiedev.bygone.core.registry.BGSoundEvents;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
+import net.minecraft.core.particles.ParticleTypes;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.syncher.EntityDataAccessor;
 import net.minecraft.network.syncher.EntityDataSerializers;
@@ -372,7 +373,11 @@ public class WraithEntity extends Monster implements RangedAttackMob, FlyingAnim
 
     @Override
     public boolean hurt(DamageSource source, float amount) {
-
+        
+        if (source.is(DamageTypeTags.IS_PROJECTILE)) {
+            return false;
+        }
+        
         if (source.is(DamageTypeTags.IS_FREEZING)) {
             return super.hurt(source, 0);
         }
@@ -634,7 +639,15 @@ public class WraithEntity extends Monster implements RangedAttackMob, FlyingAnim
                             belowTeleportDestination,
                             Direction.UP
                     ) && teleportDestinationState.isAir() && aboveTeleportDestinationState.isAir()) {
-
+                        
+                        WraithEntity.this.level().addParticle(ParticleTypes.PORTAL,
+                                teleportDestination.getX() + 0.5,
+                                teleportDestination.getY() + 1.0,
+                                teleportDestination.getZ() + 0.5,
+                                (WraithEntity.this.random.nextDouble() - 0.5) * 2.0,
+                                -WraithEntity.this.random.nextDouble(),
+                                (WraithEntity.this.random.nextDouble() - 0.5) * 2.0);
+                      
                         target.teleportTo(
                                 teleportDestination.getX() + 0.5,
                                 teleportDestination.getY(),

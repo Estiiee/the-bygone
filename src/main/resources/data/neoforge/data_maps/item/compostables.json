@@ -78,8 +78,11 @@
     "bygone:whirliweed": {
       "chance": 0.3
     },
-    "minecraft:air": {
-      "chance": 0.4
+    "bygone:amaranth_grain": {
+      "chance": 0.3
+    },
+    "bygone:amaranth_seeds": {
+      "chance": 0.1
     }
   }
 }

@@ -181,7 +181,7 @@ public class BGEntityTypes {
     public static final Supplier<EntityType<WallowEntity>> WALLOW = registerEntityType(
             "wallow",
             () -> EntityType.Builder.of(WallowEntity::new,  HauntingsCategoryHolder.HAUNTING_MOB_CATEGORY)
-                    .sized(0.35F, 0.35F)
+                    .sized(0.55F, 0.55F)
                     .clientTrackingRange(8)
                     .updateInterval(2)
                     .build("")
@@ -265,7 +265,7 @@ public class BGEntityTypes {
 
     public static final Supplier<EntityType<SabeastEntity>> SABEAST = registerEntityType(
             "sabeast",
-            () -> EntityType.Builder.of(SabeastEntity::new, MobCategory.CREATURE).sized(1.0F, 2.0F).build("")
+            () -> EntityType.Builder.of(SabeastEntity::new, MobCategory.CREATURE).sized(1.2F, 2.2F).build("")
     );
 
     public static final Supplier<EntityType<PrimordialFishEntity>> PRIMORDIAL_FISH = registerEntityType(
