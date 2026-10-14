@@ -80,7 +80,7 @@ public class IceBouquetBlock extends Block {
 
         if (entity instanceof LivingEntity livingEntity) {
             if (livingEntity.getType().is(JamiesModTag.ICE_BOUQUET_HEALS)) {
-                livingEntity.heal(0.10F);
+                livingEntity.heal(this.iceDamage);
             } else {
                 livingEntity.hurt(level.damageSources().freeze(), this.iceDamage);
             }

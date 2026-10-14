@@ -90,7 +90,7 @@ public abstract class LivingEntityMixin extends Entity implements LivingEntityEx
         cir.setReturnValue(false);
     }
 
-	@WrapMethod(method = "die")
+	@WrapMethod(method = "dropAllDeathLoot")
 	private void spawnHauntedGround(DamageSource source, Operation<Void> original) {
 		original.call(source);
 		if (!this.getType().is(JamiesModTag.SPECTRAL)) return;
@@ -102,10 +102,10 @@ public abstract class LivingEntityMixin extends Entity implements LivingEntityEx
 			BlockState state = this.level().getBlockState(pos);
 			if (!(state.isAir() || state.canBeReplaced())) continue;
 			if (!groundState.canSurvive(this.level(), pos)) continue;
-
-			this.level().setBlock(pos, groundState, Block.UPDATE_ALL);
+   
 			break;
 		}
+        this.level().setBlock(pos, groundState, Block.UPDATE_ALL);
 	}
     
     @Unique private static final String BYGONE_HAUNTINGS_RISE_TICKS_TAG = "BygoneHauntingsMobRiseTicks";
