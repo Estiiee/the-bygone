@@ -3,7 +3,6 @@ package com.jamiedev.bygone.common.entity.projectile;
 import com.jamiedev.bygone.core.init.JamiesModTag;
 import com.jamiedev.bygone.core.registry.BGEntityTypes;
 import net.minecraft.core.particles.ParticleTypes;
-import net.minecraft.network.syncher.SynchedEntityData;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.LivingEntity;
@@ -16,7 +15,7 @@ import org.jetbrains.annotations.NotNull;
 
 public class ScareBoltEntity extends Projectile {
     
-    public static final int MAX_LIFETIME = 200;
+    public static final int MAX_LIFETIME = 90;
     public static final float DAMAGE = 4.0F;
     
     private int life;

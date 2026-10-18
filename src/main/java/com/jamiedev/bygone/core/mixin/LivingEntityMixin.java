@@ -89,6 +89,15 @@ public abstract class LivingEntityMixin extends Entity implements LivingEntityEx
         if (BuiltInRegistries.MOB_EFFECT.wrapAsHolder(instance.getEffect()).is(JamiesModTag.IGNORES_PLASMILK)) return;
         cir.setReturnValue(false);
     }
+    
+    @Inject(method = "hurt", at = @At("HEAD"))
+    private void bygone$spectralNoticeAttacker(DamageSource source, float amount, CallbackInfoReturnable<Boolean> cir) {
+        LivingEntity self = (LivingEntity) (Object) this;
+        if (self.level().isClientSide() || !self.getType().is(JamiesModTag.SPECTRAL)) return;
+        if (!(source.getEntity() instanceof LivingEntity attacker) || attacker == self) return;
+        if (attacker.getType().is(JamiesModTag.SPECTRAL)) return;
+        self.setLastHurtByMob(attacker);
+    }
 
 	@WrapMethod(method = "dropAllDeathLoot")
 	private void spawnHauntedGround(DamageSource source, Operation<Void> original) {
