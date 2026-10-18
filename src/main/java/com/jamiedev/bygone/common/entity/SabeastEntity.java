@@ -343,8 +343,7 @@ public class SabeastEntity extends Monster  {
         public void start() {
             this.sabeast.getNavigation().stop();
             if (this.target instanceof Player player) {
-                player.addEffect(new MobEffectInstance(MobEffects.BLINDNESS, 200, 0, true, true), this.sabeast);
-            }
+                player.addEffect(new MobEffectInstance(MobEffects.DARKNESS, 200, 0, true, true), this.sabeast);            }
         }
 
         public void tick() {
