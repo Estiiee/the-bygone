@@ -40,7 +40,7 @@ public class EntityPhaseMeterGuiMixin {
             int maxTicks = phasing.getMaxPhasingTicks();
             if (maxTicks <= 0) return;
             
-            int ticks = phasing.getPhasingTicks();
+            int ticks = phasing.getPhasingTime();
             float value = (float) ticks / maxTicks;
             int spriteIndex = (PHASE_METER_SPRITE_COUNT - 1) - (int) (value * (PHASE_METER_SPRITE_COUNT - 1));
             ResourceLocation sprite = PHASE_METER_SPRITES[spriteIndex];
