@@ -162,6 +162,7 @@ public class WhisperEntity extends Monster implements FlyingAnimal {
             Player victim = this.level().getNearestPlayer(this.drainTargeting, this);
             if (victim != null && victim.getHealth() > DRAIN_MINIMUM_HEALTH) {
                 victim.setHealth(Math.max(DRAIN_MINIMUM_HEALTH, victim.getHealth() - DRAIN_AMOUNT));
+                this.playSound(BGSoundEvents.WHISPER_DRAIN_EVENT, 0.5F, 1.2F);
             }
         }
     }

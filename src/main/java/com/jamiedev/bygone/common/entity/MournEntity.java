@@ -299,7 +299,7 @@ public class MournEntity extends Monster {
     
     @Override
     protected @Nullable SoundEvent getAmbientSound() {
-        return null;
+        return BGSoundEvents.MOURN_AMBIENT_EVENT;
     }
     
     @Override
