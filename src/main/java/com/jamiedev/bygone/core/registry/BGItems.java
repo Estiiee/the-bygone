@@ -381,8 +381,18 @@ public class BGItems {
             "scare_spawn_egg",
             BGEntityTypes.SCARE, 0x4a3a5e, 0x8a6fae, new Item.Properties()
     );
+    public static final Supplier<Item> TRILOBITE_BUCKET = registerItem(
+            "bucket_o_trilobite", () ->
+                    new MobBucketItem(
+                            BGEntityTypes.TRILOBITE,
+                            () -> Fluids.WATER,
+                            () -> SoundEvents.BUCKET_EMPTY_AXOLOTL,
+                            (new Item.Properties())
+                                    .stacksTo(1)
+                    )
+    );
     public static final Supplier<Item> AMOEBA_BUCKET = registerItem(
-            (String) "bucket_o_amoeba", () ->
+            "bucket_o_amoeba", () ->
                     new MobBucketItem(
                             BGEntityTypes.AMOEBA,
                             () -> Fluids.WATER,
