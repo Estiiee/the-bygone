@@ -143,7 +143,7 @@ public class WhisperEntity extends Monster implements FlyingAnimal {
     
     @Override
     public float getStandingEyeHeight(Pose pose, EntityDimensions dimensions) {
-        return 1.1F;
+        return 0.55F;
     }
     
     @Override

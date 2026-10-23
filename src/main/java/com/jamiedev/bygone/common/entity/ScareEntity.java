@@ -186,7 +186,7 @@ public class ScareEntity extends Monster implements RangedAttackMob, FlyingAnima
     
     @Override
     public float getStandingEyeHeight(Pose pose,  EntityDimensions dimensions) {
-        return 1.1F;
+        return 0.65F;
     }
     
     private boolean collidingHurtSpectralBlocks() {

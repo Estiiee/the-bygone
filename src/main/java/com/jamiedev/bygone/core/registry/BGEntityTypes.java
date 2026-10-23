@@ -239,7 +239,7 @@ public class BGEntityTypes {
             () -> EntityType.Builder.of(WhisperEntity::new, HauntingsCategoryHolder.HAUNTING_MOB_CATEGORY)
                     .immuneTo(BGBlocks.ICE_BOUQUET.get())
                     .fireImmune()
-                    .sized(0.6F, 1.4F)
+                    .sized(0.5F, 0.75F)
                     .clientTrackingRange(8)
                     .build("")
     );
@@ -249,7 +249,7 @@ public class BGEntityTypes {
             () -> EntityType.Builder.of(ScareEntity::new, HauntingsCategoryHolder.HAUNTING_MOB_CATEGORY)
                     .immuneTo(BGBlocks.ICE_BOUQUET.get())
                     .fireImmune()
-                    .sized(0.8F, 1.7F)
+                    .sized(0.9F, 0.8F)
                     .clientTrackingRange(8)
                     .build("")
     );
