@@ -33,7 +33,7 @@ public class HookEntity extends AbstractArrow {
     private ItemStack pickupItem = BGItems.ANCIENT_HOOK.get().getDefaultInstance();
     
     private static final float CHAIN_SPEED = 0.1F;
-    private static final float REVERSE_SPEED = 0.025F;
+    private static final float REVERSE_SPEED = 0.055F;
     
     public float prevChainProgress = 0F;
 

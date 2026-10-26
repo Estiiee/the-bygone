@@ -76,7 +76,6 @@ dependencies {
 
     //jarJar("curse.maven:jinxedlib-1203401:6269067")
     implementation fg.deobf("curse.maven:jinxedlib-1203401:6630668")
-    //implementation fg.deobf("net.kyrptonaught.customportalapi:cpapireforged-neo-1.21.1:1.0.11")
     implementation fg.deobf("curse.maven:lithostitched-936015:6742615")
     implementation fg.deobf("curse.maven:huge-structure-blocks-474114:4803547")
 
