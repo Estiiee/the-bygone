@@ -6,13 +6,12 @@ import com.jamiedev.bygone.client.models.MournModel;
 import com.jamiedev.bygone.common.entity.MournEntity;
 import net.minecraft.client.renderer.RenderType;
 import net.minecraft.client.renderer.entity.EntityRendererProvider;
-import net.minecraft.client.renderer.entity.MobRenderer;
 import net.minecraft.resources.ResourceLocation;
 import org.jetbrains.annotations.NotNull;
 
 import javax.annotation.Nullable;
 
-public class MournRenderer extends MobRenderer<MournEntity, MournModel<MournEntity>> {
+public class MournRenderer extends HauntingsMobRenderer<MournEntity, MournModel<MournEntity>> {
     private static final ResourceLocation TEXTURE = Bygone.id("textures/entity/mourn.png");
     
     public MournRenderer(EntityRendererProvider.Context context) {

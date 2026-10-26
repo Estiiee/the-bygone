@@ -4,7 +4,6 @@ import com.jamiedev.bygone.client.renderer.SpectralRenderUtil;
 import com.jamiedev.bygone.common.entity.MournEntity;
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.vertex.VertexConsumer;
-import net.minecraft.client.model.HierarchicalModel;
 import net.minecraft.client.model.geom.ModelPart;
 import net.minecraft.client.model.geom.PartPose;
 import net.minecraft.client.model.geom.builders.*;
@@ -12,7 +11,7 @@ import net.minecraft.util.Mth;
 import net.minecraft.world.entity.Entity;
 import org.jetbrains.annotations.NotNull;
 
-public class MournModel<T extends Entity> extends HierarchicalModel<T> {
+public class MournModel<T extends Entity> extends HauntingsMobModel<T> {
     
     public static final float SUBMERGE_DEPTH = 54.0F;
     
@@ -135,6 +134,6 @@ public class MournModel<T extends Entity> extends HierarchicalModel<T> {
     
     @Override
     public void renderToBuffer(PoseStack poseStack, VertexConsumer vertexConsumer, int packedLight, int packedOverlay, float red, float green, float blue, float alpha) {
-        root.render(poseStack, vertexConsumer, packedLight, packedOverlay, red, green, blue, SpectralRenderUtil.applyAlpha(alpha, this.spectralAlpha));
+        root.render(poseStack, vertexConsumer, packedLight, packedOverlay, red, green, blue, this.modifyColor(alpha));
     }
 }

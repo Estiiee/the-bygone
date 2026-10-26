@@ -6,13 +6,12 @@ import com.jamiedev.bygone.client.models.ScareModel;
 import com.jamiedev.bygone.common.entity.ScareEntity;
 import net.minecraft.client.renderer.RenderType;
 import net.minecraft.client.renderer.entity.EntityRendererProvider;
-import net.minecraft.client.renderer.entity.MobRenderer;
 import net.minecraft.resources.ResourceLocation;
 import org.jetbrains.annotations.NotNull;
 
 import javax.annotation.Nullable;
 
-public class ScareRenderer extends MobRenderer<ScareEntity, ScareModel<ScareEntity>> {
+public class ScareRenderer extends HauntingsMobRenderer<ScareEntity, ScareModel<ScareEntity>> {
     private static final ResourceLocation TEXTURE = Bygone.id("textures/entity/scare.png");
     
     public ScareRenderer(EntityRendererProvider.Context context) {

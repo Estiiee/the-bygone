@@ -3,7 +3,6 @@ package com.jamiedev.bygone.client.models;
 import com.jamiedev.bygone.client.renderer.SpectralRenderUtil;
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.vertex.VertexConsumer;
-import net.minecraft.client.model.HierarchicalModel;
 import net.minecraft.client.model.geom.ModelPart;
 import net.minecraft.client.model.geom.PartPose;
 import net.minecraft.client.model.geom.builders.*;
@@ -11,7 +10,7 @@ import net.minecraft.util.Mth;
 import net.minecraft.world.entity.Entity;
 import org.jetbrains.annotations.NotNull;
 
-public class ScareModel<T extends Entity> extends HierarchicalModel<T> {
+public class ScareModel<T extends Entity> extends HauntingsMobModel<T> {
     
     private final ModelPart all;
     private final ModelPart body;

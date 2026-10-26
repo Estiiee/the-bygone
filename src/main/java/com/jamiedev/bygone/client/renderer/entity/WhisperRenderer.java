@@ -6,13 +6,12 @@ import com.jamiedev.bygone.client.models.WhisperModel;
 import com.jamiedev.bygone.common.entity.WhisperEntity;
 import net.minecraft.client.renderer.RenderType;
 import net.minecraft.client.renderer.entity.EntityRendererProvider;
-import net.minecraft.client.renderer.entity.MobRenderer;
 import net.minecraft.core.BlockPos;
 import net.minecraft.resources.ResourceLocation;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
-public class WhisperRenderer extends MobRenderer<WhisperEntity, WhisperModel<WhisperEntity>> {
+public class WhisperRenderer extends HauntingsMobRenderer<WhisperEntity, WhisperModel<WhisperEntity>> {
     private static final ResourceLocation TEXTURE = Bygone.id("textures/entity/whisper.png");
     
     public WhisperRenderer(EntityRendererProvider.Context context) {
