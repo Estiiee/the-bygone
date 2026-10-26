@@ -9,7 +9,8 @@ import net.minecraft.core.particles.SimpleParticleType;
 import net.minecraft.core.registries.BuiltInRegistries;
 
 public class BGParticleTypes {
-
+    
+    public static final ParticleType<SimpleParticleType> ARCANE_SYMBOL = simple();
     public static final ParticleType<SimpleParticleType> AMBER_DUST = simple();
     public static final ParticleType<SimpleParticleType> RAFFLESIA_SPORES = simple();
     public static final ParticleType<SimpleParticleType> ALGAE_BLOOM = simple();
@@ -34,6 +35,7 @@ public class BGParticleTypes {
 
     public static void registerAll() {
         Registry.register(BuiltInRegistries.PARTICLE_TYPE, Bygone.id("rafflesia_spores"), RAFFLESIA_SPORES);
+        Registry.register(BuiltInRegistries.PARTICLE_TYPE, Bygone.id("arcane_symbol"), ARCANE_SYMBOL);
         Registry.register(BuiltInRegistries.PARTICLE_TYPE, Bygone.id("algae_bloom"), ALGAE_BLOOM);
         Registry.register(BuiltInRegistries.PARTICLE_TYPE, Bygone.id("blemish_bubble"), BLEMISH);
         Registry.register(BuiltInRegistries.PARTICLE_TYPE, Bygone.id("amber_dust"), AMBER_DUST);

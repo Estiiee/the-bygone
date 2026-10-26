@@ -357,6 +357,10 @@ public class BygoneClient {
                 p_107611_ -> (ParticleProvider<T>) new BlemishParticle.BlemishBlockProvider(p_107611_)
         );
         consumer.accept(
+                (ParticleType<T>) BGParticleTypes.ARCANE_SYMBOL,
+                sprite -> (ParticleProvider<T>) new ArcaneSymbolParticle.Provider(sprite)
+        );
+        consumer.accept(
                 (ParticleType<T>) BGParticleTypes.RAFFLESIA_SPORES,
                 spriteProvider -> (ParticleProvider<T>) new RafflesiaSporeParticle.Factory(spriteProvider)
         );

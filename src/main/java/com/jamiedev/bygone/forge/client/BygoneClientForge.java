@@ -1,6 +1,7 @@
 package com.jamiedev.bygone.forge.client;
 
 import com.jamiedev.bygone.client.BygoneClient;
+import com.jamiedev.bygone.client.particles.ArcaneSymbolParticle;
 import com.jamiedev.bygone.client.particles.BlemishParticle;
 import com.jamiedev.bygone.client.particles.UpsidedownDropParticle;
 import com.jamiedev.bygone.client.screen.PortalOverlay;
@@ -46,8 +47,8 @@ public class BygoneClientForge {
     static void registerParticleFactories(RegisterParticleProvidersEvent event) {
         BygoneClient.registerParticleFactories(event::registerSpriteSet);
         event.registerSpriteSet(BGParticleTypes.BLEMISH, BlemishParticle.BlemishBlockProvider::new);
+        event.registerSpriteSet(BGParticleTypes.ARCANE_SYMBOL, ArcaneSymbolParticle.Provider::new);
         event.registerSpriteSet(BGParticleTypes.UPSIDEDOWN, UpsidedownDropParticle.Provider::new);
-
     }
     
     private static final PortalOverlay overlay = new PortalOverlay();

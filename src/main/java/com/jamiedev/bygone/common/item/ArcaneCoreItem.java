@@ -1,68 +1,53 @@
 package com.jamiedev.bygone.common.item;
 
-import com.jamiedev.bygone.common.block.BygonePortalFrameBlock;
-import com.jamiedev.bygone.core.registry.BGBlocks;
+import com.jamiedev.bygone.core.init.JamiesModTag;
+import com.jamiedev.bygone.core.registry.BGParticleTypes;
+import com.jamiedev.bygone.core.registry.BGSoundEvents;
 import net.minecraft.core.BlockPos;
-import net.minecraft.world.InteractionResult;
+import net.minecraft.server.level.ServerLevel;
+import net.minecraft.sounds.SoundSource;
+import net.minecraft.stats.Stats;
+import net.minecraft.util.Mth;
+import net.minecraft.world.InteractionHand;
+import net.minecraft.world.InteractionResultHolder;
 import net.minecraft.world.entity.player.Player;
-import net.minecraft.world.item.BlockItem;
-import net.minecraft.world.item.context.BlockPlaceContext;
-import net.minecraft.world.item.context.UseOnContext;
+import net.minecraft.world.item.Item;
+import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
-import net.minecraft.world.level.block.Block;
-import net.minecraft.world.level.block.state.BlockState;
-import net.minecraft.world.level.block.state.pattern.BlockPattern;
-import net.minecraft.world.phys.shapes.CollisionContext;
+import net.minecraft.world.phys.Vec3;
 
-public class ArcaneCoreItem extends BlockItem {
-    public ArcaneCoreItem(Block block, Properties settings) {
-        super(block, settings);
+public class ArcaneCoreItem extends Item {
+    
+    public static final int USAGE_COOLDOWN = 10;
+    
+    public ArcaneCoreItem(Properties settings) {
+        super(settings);
     }
-
+    
     @Override
-    public InteractionResult useOn(UseOnContext context) {
-        Level world = context.getLevel();
-        BlockPos blockPos = context.getClickedPos();
-        BlockState blockState = world.getBlockState(blockPos);
-        InteractionResult actionResult = this.place(new BlockPlaceContext(context));
-        if (blockState.is(BGBlocks.BYGONE_PORTAL_FRAME.get()) && !(Boolean) blockState.getValue(BygonePortalFrameBlock.EYE)) {
-            if (world.isClientSide) {
-                // return ActionResult.SUCCESS;
-            } else {
-                BlockState blockState2 = blockState.setValue(BygonePortalFrameBlock.EYE, true);
-                Block.pushEntitiesUp(blockState, blockState2, world, blockPos);
-                world.setBlock(blockPos, blockState2, 2);
-                world.updateNeighbourForOutputSignal(blockPos, BGBlocks.BYGONE_PORTAL_FRAME.get());
-                context.getItemInHand().shrink(1);
-                world.levelEvent(2503, blockPos, 0);
-                BlockPattern.BlockPatternMatch result = BygonePortalFrameBlock.getCompletedFramePattern().find(world, blockPos);
-                if (result != null) {
-                    BlockPos blockPos2 = result.getFrontTopLeft().offset(-3, 0, -3);
-
-                    for (int i = 0; i < 3; ++i) {
-                        for (int j = 0; j < 3; ++j) {
-                            world.setBlock(blockPos2.offset(i, 0, j), BGBlocks.BYGONE_PORTAL.get().defaultBlockState(), 2);
-                        }
-                    }
-
-                    world.globalLevelEvent(1038, blockPos2.offset(1, 0, 1), 0);
-                }
-
-                return InteractionResult.CONSUME;
-            }
-        } else if (!blockState.is(BGBlocks.BYGONE_PORTAL_FRAME.get())) {
-            return actionResult;
-        } else {
-            return InteractionResult.FAIL;
+    public InteractionResultHolder<ItemStack> use(Level level, Player player, InteractionHand hand) {
+        ItemStack stack = player.getItemInHand(hand);
+        if (!(level instanceof ServerLevel serverLevel)) return InteractionResultHolder.consume(stack);
+        
+        float pitch = Mth.lerp(level.random.nextFloat(), 0.33F, 0.5F);
+        level.playSound(null, player.getX(), player.getY(), player.getZ(), BGSoundEvents.ITEM_ARCANE_CORE_USE_EVENT, SoundSource.NEUTRAL, 1, pitch);
+        player.awardStat(Stats.ITEM_USED.get(this));
+        player.getCooldowns().addCooldown(this, 20 * USAGE_COOLDOWN);
+        
+        BlockPos pos = serverLevel.findNearestMapStructure(JamiesModTag.BYGONE_ITEM_LOCATED, player.blockPosition(), 100, false);
+        if (pos == null) return InteractionResultHolder.consume(stack);
+        
+        Vec3 center = player.position().add(0, player.getBbHeight() + 0.5F, 0);
+        Vec3 forward = Vec3.directionFromRotation(0, player.getYRot()).normalize();
+        Vec3 start = center.add(forward);
+        
+        Vec3 dir = Vec3.atCenterOf(pos).subtract(start).normalize();
+        for (int i = 1; i <= 5; i++) {
+            Vec3 particlePos = start.add(dir.scale(i * 0.5F));
+            serverLevel.sendParticles(BGParticleTypes.ARCANE_SYMBOL, particlePos.x, particlePos.y, particlePos.z, 1, 0, 0, 0, 0);
         }
-        return InteractionResult.FAIL;
+        
+        return InteractionResultHolder.success(stack);
     }
-
-    @Override
-    protected boolean canPlace(BlockPlaceContext context, BlockState state) {
-        Player playerEntity = context.getPlayer();
-        CollisionContext shapeContext = playerEntity == null ? CollisionContext.empty() : CollisionContext.of(playerEntity);
-        return (!this.mustSurvive() || state.canSurvive(context.getLevel(), context.getClickedPos())) && context.getLevel().isUnobstructed(state, context.getClickedPos(), shapeContext) && !state.is(BGBlocks.BYGONE_PORTAL_FRAME.get());
-    }
-
+    
 }

@@ -33,6 +33,8 @@ public class HookEntity extends AbstractArrow {
     private ItemStack pickupItem = BGItems.ANCIENT_HOOK.get().getDefaultInstance();
     
     private static final float CHAIN_SPEED = 0.1F;
+    private static final float REVERSE_SPEED = 0.025F;
+    
     public float prevChainProgress = 0F;
 
     private final SoundEvent soundEvent;
@@ -118,7 +120,7 @@ public class HookEntity extends AbstractArrow {
 
         if (this.isRetracting()) {
             float current = getChainProgressFloat();
-            setChainProgressFloat(Math.max(0F, current - CHAIN_SPEED));
+            setChainProgressFloat(Math.max(0F, current - REVERSE_SPEED));
 
             if (!this.level().isClientSide && getChainProgressFloat() <= 0F) {
                 this.discard();
