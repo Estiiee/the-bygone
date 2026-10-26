@@ -10,7 +10,6 @@ import com.mojang.math.Axis;
 import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.client.renderer.RenderType;
 import net.minecraft.client.renderer.entity.EntityRendererProvider;
-import net.minecraft.client.renderer.entity.MobRenderer;
 import net.minecraft.client.renderer.texture.OverlayTexture;
 import net.minecraft.core.BlockPos;
 import net.minecraft.resources.ResourceLocation;
@@ -19,9 +18,7 @@ import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.phys.Vec3;
 import org.jetbrains.annotations.NotNull;
 
-import javax.annotation.Nullable;
-
-public class HauntRenderer extends MobRenderer<HauntEntity, HauntModel<HauntEntity>> {
+public class HauntRenderer extends HauntingsMobRenderer<HauntEntity, HauntModel<HauntEntity>> {
 
 	private static final ResourceLocation HAUNT_LOCATION = Bygone.id("textures/entity/haunt.png");
 	private static final ResourceLocation HAUNT_BEAM_LOCATION = Bygone.id("textures/entity/haunt_beam.png");
@@ -40,12 +37,6 @@ public class HauntRenderer extends MobRenderer<HauntEntity, HauntModel<HauntEnti
 
 	public HauntRenderer(EntityRendererProvider.Context context) {
 		super(context, new HauntModel<>(context.bakeLayer(JamiesModModelLayers.HAUNT)), 0.7F);
-	}
-
-	@Nullable
-	@Override
-	protected RenderType getRenderType(@NotNull HauntEntity entity, boolean bodyVisible, boolean translucent, boolean glowing) {
-		return RenderType.entityTranslucent(this.getTextureLocation(entity));
 	}
 
 	@Override

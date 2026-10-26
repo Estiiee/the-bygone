@@ -5,14 +5,13 @@ import com.jamiedev.bygone.client.renderer.SpectralRenderUtil;
 import com.jamiedev.bygone.common.entity.WraithEntity;
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.vertex.VertexConsumer;
-import net.minecraft.client.model.HierarchicalModel;
 import net.minecraft.client.model.geom.ModelPart;
 import net.minecraft.client.model.geom.PartPose;
 import net.minecraft.client.model.geom.builders.*;
 import net.minecraft.world.entity.Entity;
 import org.jetbrains.annotations.NotNull;
 
-public class WraithModel<T extends Entity> extends HierarchicalModel<T> {
+public class WraithModel<T extends Entity> extends HauntingsMobModel<T> {
     // This layer location should be baked with EntityRendererProvider.Context in the entity renderer and passed into this model's constructor
     private final ModelPart root;
     private final ModelPart body;
@@ -78,7 +77,7 @@ public class WraithModel<T extends Entity> extends HierarchicalModel<T> {
     
     @Override
     public void renderToBuffer(@NotNull PoseStack poseStack, @NotNull VertexConsumer vertexConsumer, int packedLight, int packedOverlay, float red, float green, float blue, float alpha) {
-        root.render(poseStack, vertexConsumer, packedLight, packedOverlay, red, green, blue, SpectralRenderUtil.applyAlpha(alpha, this.spectralAlpha));
+        root.render(poseStack, vertexConsumer, packedLight, packedOverlay, red, green, blue, this.modifyColor(alpha));
     }
 
     @Override

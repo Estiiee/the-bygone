@@ -6,14 +6,12 @@ import com.jamiedev.bygone.client.models.WallowModel;
 import com.jamiedev.bygone.common.entity.WallowEntity;
 import net.minecraft.client.renderer.RenderType;
 import net.minecraft.client.renderer.entity.EntityRendererProvider;
-import net.minecraft.client.renderer.entity.MobRenderer;
 import net.minecraft.resources.ResourceLocation;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
-public class WallowRenderer extends MobRenderer<WallowEntity, WallowModel<WallowEntity>> {
+public class WallowRenderer extends HauntingsMobRenderer<WallowEntity, WallowModel<WallowEntity>> {
     private static final ResourceLocation TEXTURE = Bygone.id("textures/entity/wallow.png");
-
 
     public WallowRenderer(EntityRendererProvider.Context context) {
         super(context, new WallowModel<>(context.bakeLayer(JamiesModModelLayers.WALLOW)), 0.5F);

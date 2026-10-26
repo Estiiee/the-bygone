@@ -7,13 +7,12 @@ import com.jamiedev.bygone.client.renderer.entity.layers.GeistEyesLayer;
 import com.jamiedev.bygone.common.entity.GeistEntity;
 import net.minecraft.client.renderer.RenderType;
 import net.minecraft.client.renderer.entity.EntityRendererProvider;
-import net.minecraft.client.renderer.entity.MobRenderer;
 import net.minecraft.resources.ResourceLocation;
 import org.jetbrains.annotations.NotNull;
 
 import javax.annotation.Nullable;
 
-public class GeistRenderer extends MobRenderer<GeistEntity, GeistModel<GeistEntity>> {
+public class GeistRenderer extends HauntingsMobRenderer<GeistEntity, GeistModel<GeistEntity>> {
     private static final ResourceLocation TEXTURE = Bygone.id("textures/entity/geist.png");
 
 

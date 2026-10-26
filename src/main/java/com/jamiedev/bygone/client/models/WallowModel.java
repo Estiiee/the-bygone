@@ -1,17 +1,15 @@
 package com.jamiedev.bygone.client.models;
 
 import com.jamiedev.bygone.client.models.animations.*;
-import com.jamiedev.bygone.client.renderer.SpectralRenderUtil;
 import com.jamiedev.bygone.common.entity.WallowEntity;
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.vertex.VertexConsumer;
-import net.minecraft.client.model.HierarchicalModel;
 import net.minecraft.client.model.geom.ModelPart;
 import net.minecraft.client.model.geom.PartPose;
 import net.minecraft.client.model.geom.builders.*;
 import net.minecraft.world.entity.Entity;
 
-public class WallowModel<T extends Entity> extends HierarchicalModel<T> {
+public class WallowModel<T extends Entity> extends HauntingsMobModel<T> {
 
 	private final ModelPart all;
 	private final ModelPart body;
@@ -63,7 +61,7 @@ public class WallowModel<T extends Entity> extends HierarchicalModel<T> {
     
     @Override
     public void renderToBuffer(PoseStack poseStack, VertexConsumer vertexConsumer, int packedLight, int packedOverlay, float red, float green, float blue, float alpha) {
-        all.render(poseStack, vertexConsumer, packedLight, packedOverlay, red, green, blue, SpectralRenderUtil.applyAlpha(alpha, this.spectralAlpha));
+        all.render(poseStack, vertexConsumer, packedLight, packedOverlay, red, green, blue, this.modifyColor(alpha));
     }
 
 	@Override
@@ -71,13 +69,10 @@ public class WallowModel<T extends Entity> extends HierarchicalModel<T> {
 		return all;
 	}
     
-    private float spectralAlpha = 1.0F;
-    
 	@Override
 	public void setupAnim(Entity entity, float limbSwing, float limbSwingAmount, float ageInTicks, float netHeadYaw, float headPitch)
 	{
 		this.root().getAllParts().forEach(ModelPart::resetPose);
-        this.spectralAlpha = SpectralRenderUtil.healthAlpha(entity);
 
 		if (entity instanceof WallowEntity wraith) {
 			this.animate(wraith.idleAnimationState, WallowAnimations.IDLE, ageInTicks, 1.0f);
