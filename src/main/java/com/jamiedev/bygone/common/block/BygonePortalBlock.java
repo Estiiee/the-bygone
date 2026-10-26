@@ -22,6 +22,7 @@ import net.minecraft.world.level.block.EndPortalBlock;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.state.BlockBehaviour;
 import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.level.block.state.StateDefinition;
 import net.minecraft.world.level.block.state.properties.BlockStateProperties;
 import net.minecraft.world.level.block.state.properties.BooleanProperty;
 import net.minecraft.world.level.block.state.properties.EnumProperty;
@@ -46,10 +47,19 @@ public class BygonePortalBlock extends Block {
 
     public BygonePortalBlock(BlockBehaviour.Properties settings) {
         super(settings);
+        this.registerDefaultState(this.stateDefinition.any()
+                .setValue(AXIS, Direction.Axis.X)
+                .setValue(CENTER, false)
+                .setValue(SIZE, 1));
     }
 
     public BlockEntity createBlockEntity(BlockPos pos, BlockState state) {
         return new BygonePortalBlockEntity(pos, state);
+    }
+    
+    @Override
+    protected void createBlockStateDefinition(StateDefinition.Builder<Block, BlockState> builder) {
+        builder.add(AXIS, CENTER, SIZE);
     }
 
     @Override

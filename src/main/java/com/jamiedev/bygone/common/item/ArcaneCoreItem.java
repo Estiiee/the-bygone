@@ -4,6 +4,7 @@ import com.jamiedev.bygone.core.init.JamiesModTag;
 import com.jamiedev.bygone.core.registry.BGParticleTypes;
 import com.jamiedev.bygone.core.registry.BGSoundEvents;
 import net.minecraft.core.BlockPos;
+import net.minecraft.core.particles.SimpleParticleType;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.sounds.SoundSource;
 import net.minecraft.stats.Stats;
@@ -44,7 +45,7 @@ public class ArcaneCoreItem extends Item {
         Vec3 dir = Vec3.atCenterOf(pos).subtract(start).normalize();
         for (int i = 1; i <= 5; i++) {
             Vec3 particlePos = start.add(dir.scale(i * 0.5F));
-            serverLevel.sendParticles(BGParticleTypes.ARCANE_SYMBOL, particlePos.x, particlePos.y, particlePos.z, 1, 0, 0, 0, 0);
+            serverLevel.sendParticles((SimpleParticleType) BGParticleTypes.ARCANE_SYMBOL, particlePos.x, particlePos.y, particlePos.z, 1, 0, 0, 0, 0);
         }
         
         return InteractionResultHolder.success(stack);

@@ -2,9 +2,10 @@ package com.jamiedev.bygone.common.entity;
 
 import com.jamiedev.bygone.Bygone;
 import com.jamiedev.bygone.common.worldgen.BygoneTeleporter;
+import com.jamiedev.bygone.core.registry.BGEntityTypes;
 import com.jamiedev.bygone.core.registry.BGItems;
 import com.jamiedev.bygone.core.registry.BGSoundEvents;
-import net.minecraft.client.player.LocalPlayer;
+import net.minecraft.client.Minecraft;
 import net.minecraft.core.particles.ParticleTypes;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.nbt.CompoundTag;
@@ -46,6 +47,10 @@ public class BygonePortalEntity extends LivingEntity {
         super(entityType, level);
         this.noPhysics = true;
         this.setNoGravity(true);
+    }
+    
+    public BygonePortalEntity(Level level) {
+        super(BGEntityTypes.BYGONE_PORTAL.get(), level);
     }
 
     public static AttributeSupplier.Builder createAttributes() {
@@ -111,7 +116,11 @@ public class BygonePortalEntity extends LivingEntity {
         }
 
         if (this.level() instanceof ServerLevel serverLevel && this.isReturn()) {
-            List<BygonePortalEntity> existingPortals = serverLevel.getEntitiesOfClass(BygonePortalEntity.class, new AABB(this.blockPosition()).inflate(3));
+            List<BygonePortalEntity> existingPortals = serverLevel
+                    .getEntities(this, this.getBoundingBox().inflate(3), entity -> entity instanceof BygonePortalEntity)
+                    .stream()
+                    .map(entity -> (BygonePortalEntity)entity)
+                    .toList();
             if (!existingPortals.isEmpty()) {
                 for (BygonePortalEntity portal : existingPortals) {
                     portal.addEffect(new MobEffectInstance(MobEffects.GLOWING, 20));
@@ -125,58 +134,59 @@ public class BygonePortalEntity extends LivingEntity {
             double range = 2.0;
             AABB bounds = this.getBoundingBox().inflate(range);
             List<Player> nearbyPlayers = this.level().getEntitiesOfClass(Player.class, bounds);
-
-            for (Player player : nearbyPlayers) {
-                if (teleportCountdown.containsKey(player)) {
-                    int remaining = teleportCountdown.get(player);
-
-                    if (remaining > 0) {
-                        teleportCountdown.put(player, remaining - 1);
-                        player.handleInsidePortal(this.blockPosition());
-                        //if (player instanceof LocalPlayer localPlayer) localPlayer.spinningEffectIntensity = 0.5f;
-
-                    } else {
-                        teleportCountdown.remove(player);
-                        ServerLevel currentLevel = (ServerLevel) this.level();
-                        if (!player.canChangeDimensions()) return;
-                        
-                        player.handleInsidePortal(this.blockPosition());
-                        if (player.isOnPortalCooldown()) return;
-                        
-                        ResourceKey<Level> bygone = ResourceKey.create(
-                                Registries.DIMENSION,
-                                new ResourceLocation(Bygone.MOD_ID, "bygone")
-                        );
-                        
-                        ResourceKey<Level> destinationKey =
-                                currentLevel.dimension() == bygone ? Level.OVERWORLD : bygone;
-                        
-                        ServerLevel destinationLevel = currentLevel.getServer().getLevel(destinationKey);
-                        if (destinationLevel == null) return;
-                        
-                        BygoneTeleporter teleporter = new BygoneTeleporter(player, this.blockPosition(), destinationLevel);
-                        if (!teleporter.isValid()) return;
-                        
-                        player.setPortalCooldown();
-                        
-                        Entity result = player.changeDimension(destinationLevel, teleporter);
-                        if (result != null) {
-                            result.setPortalCooldown();
-                            destinationLevel.getChunkSource().addRegionTicket(
-                                    TicketType.PORTAL,
-                                    new ChunkPos(teleporter.getTarget()),
-                                    3,
-                                    teleporter.getTarget()
+            
+            if (this.level() instanceof ServerLevel currentLevel) {
+                for (Player player : nearbyPlayers) {
+                    if (teleportCountdown.containsKey(player)) {
+                        Integer remaining = teleportCountdown.get(player);
+                       
+                        if (remaining == null) {
+                            teleportCountdown.put(player, 80);
+                        } else if (remaining > 0) {
+                            teleportCountdown.put(player, remaining - 1);
+                        } else {
+                            teleportCountdown.remove(player);
+                            if (!player.canChangeDimensions() || player.isOnPortalCooldown()) continue;
+                            
+                            ResourceKey<Level> bygone = ResourceKey.create(
+                                    Registries.DIMENSION,
+                                    new ResourceLocation(Bygone.MOD_ID, "bygone")
                             );
+                            
+                            ResourceKey<Level> destinationKey =
+                                    currentLevel.dimension() == bygone ? Level.OVERWORLD : bygone;
+                            
+                            ServerLevel destinationLevel = currentLevel.getServer().getLevel(destinationKey);
+                            if (destinationLevel == null) continue;
+                            
+                            BygoneTeleporter teleporter = new BygoneTeleporter(player, this.blockPosition(), destinationLevel);
+                            if (!teleporter.isValid()) continue;
+                            
+                            player.setPortalCooldown();
+                            
+                            Entity result = player.changeDimension(destinationLevel, teleporter);
+                            if (result != null) {
+                                result.setPortalCooldown();
+                                destinationLevel.getChunkSource().addRegionTicket(
+                                        TicketType.PORTAL,
+                                        new ChunkPos(teleporter.getTarget()),
+                                        3,
+                                        teleporter.getTarget()
+                                );
+                            }
+                            
                         }
-                        
                     }
-                } else {
-                    teleportCountdown.put(player, 80);
+                    else teleportCountdown.put(player, 80);
+                }
+            }
+            else {
+                for (Player player : this.level().getEntitiesOfClass(Player.class, bounds)) {
+                    if (player == Minecraft.getInstance().player) player.handleInsidePortal(this.blockPosition());
                 }
             }
         }
-
+        
         if (!teleportCountdown.isEmpty()) {
             teleportCountdown.forEach((player, integer) -> {
                 if (player.distanceTo(this) > 3 && level().isClientSide) {
