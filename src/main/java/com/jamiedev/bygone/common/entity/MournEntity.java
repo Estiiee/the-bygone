@@ -159,6 +159,17 @@ public class MournEntity extends Monster {
     }
     
     @Override
+    public boolean doHurtTarget(Entity entity) {
+        boolean flag = super.doHurtTarget(entity);
+        if (flag && this.getMainHandItem().isEmpty() && entity instanceof LivingEntity) {
+            float f = this.level().getCurrentDifficultyAt(this.blockPosition()).getEffectiveDifficulty();
+            ((LivingEntity)entity).addEffect(new MobEffectInstance(BGMobEffects.HAUNTED.get().get(), 60 * (int)f), this);
+        }
+        
+        return flag;
+    }
+    
+    @Override
     public void travel(@NotNull Vec3 travelVector) {
         if (this.isRooted()) {
             super.travel(Vec3.ZERO);

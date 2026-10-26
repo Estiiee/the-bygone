@@ -1,7 +1,6 @@
 package com.jamiedev.bygone.forge.core.registry;
 
 import com.jamiedev.bygone.Bygone;
-import com.jamiedev.bygone.common.commands.BygoneWeatherCommand;
 import com.jamiedev.bygone.common.weather.BygoneWeather;
 import com.jamiedev.bygone.core.init.JamiesModTag;
 import it.unimi.dsi.fastutil.ints.Int2ObjectMap;

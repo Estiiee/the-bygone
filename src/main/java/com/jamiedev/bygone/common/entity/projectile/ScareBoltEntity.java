@@ -2,7 +2,9 @@ package com.jamiedev.bygone.common.entity.projectile;
 
 import com.jamiedev.bygone.core.init.JamiesModTag;
 import com.jamiedev.bygone.core.registry.BGEntityTypes;
+import com.jamiedev.bygone.core.registry.BGMobEffects;
 import net.minecraft.core.particles.ParticleTypes;
+import net.minecraft.world.effect.MobEffectInstance;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.LivingEntity;
@@ -81,11 +83,13 @@ public class ScareBoltEntity extends Projectile {
     @Override
     protected void onHitEntity(@NotNull EntityHitResult result) {
         super.onHitEntity(result);
+        float f = this.level().getCurrentDifficultyAt(this.blockPosition()).getEffectiveDifficulty();
         if (!this.level().isClientSide()) {
             Entity target = result.getEntity();
             Entity owner = this.getOwner();
             LivingEntity shooter = owner instanceof LivingEntity living ? living : null;
             target.hurt(this.damageSources().mobProjectile(this, shooter), DAMAGE);
+            ((LivingEntity)target).addEffect(new MobEffectInstance(BGMobEffects.HAUNTED.get().get(), 140 * (int)f), this);
             this.discard();
         }
     }

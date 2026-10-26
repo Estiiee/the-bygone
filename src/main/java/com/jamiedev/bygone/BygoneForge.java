@@ -19,7 +19,11 @@ import net.minecraft.core.registries.Registries;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.sounds.SoundEvents;
 import net.minecraft.world.entity.monster.Vex;
+import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
+import net.minecraft.world.item.alchemy.PotionUtils;
+import net.minecraft.world.item.alchemy.Potions;
+import net.minecraft.world.item.crafting.Ingredient;
 import net.minecraft.world.level.GameRules;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.LevelReader;
@@ -34,6 +38,7 @@ import net.minecraftforge.client.extensions.common.IClientFluidTypeExtensions;
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.common.SoundActions;
 import net.minecraftforge.common.ToolActions;
+import net.minecraftforge.common.brewing.BrewingRecipeRegistry;
 import net.minecraftforge.event.TickEvent;
 import net.minecraftforge.event.entity.EntityAttributeCreationEvent;
 import net.minecraftforge.event.entity.SpawnPlacementRegisterEvent;
@@ -104,10 +109,12 @@ public class BygoneForge {
         //BGDecoratedPotPatternsNeoForge.POT_PATTERNS.register(modBus);
         BGAttributesForge.init(modBus);
         BGMobCategories.init();
+        BGPotionsForge.init(modBus);
         Bygone.init();
 
         fluidRegister.register(modBus);
         FLUID_TYPES.register(modBus);
+        
         
         BygoneForgeNetworkHandler.register();
         if (FMLEnvironment.dist.isClient()) {
@@ -195,6 +202,32 @@ public class BygoneForge {
             BGCompostables.COMPOSTABLES.get().object2FloatEntrySet().forEach(entry ->
                     ComposterBlock.COMPOSTABLES.put(entry.getKey(), entry.getFloatValue())
             );
+            
+            event.enqueueWork(() -> {
+                BrewingRecipeRegistry.addRecipe(
+                        Ingredient.of(PotionUtils.setPotion(
+                                new ItemStack(Items.POTION),
+                                Potions.AWKWARD
+                        )),
+                        Ingredient.of(BGItems.LITHOPLASM.get()),
+                        PotionUtils.setPotion(
+                                new ItemStack(Items.POTION),
+                                BGPotionsForge.HAUNTED_POTION.get()
+                        )
+                );
+                
+                BrewingRecipeRegistry.addRecipe(
+                        Ingredient.of(PotionUtils.setPotion(
+                                new ItemStack(Items.POTION),
+                                BGPotionsForge.HAUNTED_POTION.get()
+                        )),
+                        Ingredient.of(Items.REDSTONE),
+                        PotionUtils.setPotion(
+                                new ItemStack(Items.POTION),
+                                BGPotionsForge.LONG_HAUNTED_POTION.get()
+                        )
+                );
+            });
         });
     }
 

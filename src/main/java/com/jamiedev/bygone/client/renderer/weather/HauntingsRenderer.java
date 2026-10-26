@@ -48,7 +48,7 @@ public class HauntingsRenderer extends WeatherRenderer<HauntingsEvent> {
         RandomSource randomsource = RandomSource.create((long) this.time * 312987231L);
         BlockPos blockPos = BlockPos.containing(camera.getPosition());
         
-        level.playLocalSound(blockPos, BGSoundEvents.WEATHER_HAUNTING_EVENT, SoundSource.WEATHER, 0.2F, 1.0F, false);
+        //level.playLocalSound(blockPos, BGSoundEvents.WEATHER_HAUNTING_EVENT, SoundSource.WEATHER, 0.2F, 1.0F, false);
         
         int particleAmount = Minecraft.useFancyGraphics() ? 12 : 8;
         if (particleStatus == ParticleStatus.DECREASED) particleAmount /= 2;
