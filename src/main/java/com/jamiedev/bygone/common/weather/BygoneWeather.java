@@ -1,13 +1,11 @@
 package com.jamiedev.bygone.common.weather;
 
 import com.jamiedev.bygone.Bygone;
+import com.jamiedev.bygone.client.renderer.weather.FogWeatherRenderer;
 import com.jamiedev.bygone.client.renderer.weather.HauntingsRenderer;
 import com.jamiedev.bygone.client.renderer.weather.InvertedRainRenderer;
 import com.jamiedev.bygone.client.renderer.weather.WeatherRenderer;
-import com.jamiedev.bygone.common.weather.weather_types.HauntingsEvent;
-import com.jamiedev.bygone.common.weather.weather_types.InvertedRain;
-import com.jamiedev.bygone.common.weather.weather_types.WeatherProperties;
-import com.jamiedev.bygone.common.weather.weather_types.WeatherType;
+import com.jamiedev.bygone.common.weather.weather_types.*;
 import com.jamiedev.bygone.core.network.SyncWeatherS2C;
 import com.jamiedev.bygone.core.platform.Services;
 import com.jamiedev.bygone.core.registry.BGDimensions;
@@ -36,8 +34,9 @@ public class BygoneWeather extends SavedData {
     public static Registry<WeatherType.Factory> WEATHER_TYPES;
 
     public static void bootstrap(Consumer<WeatherType.Factory> consumer) {
-        consumer.accept(new WeatherType.Factory<InvertedRain>("inverted_rain", InvertedRain::new, () -> InvertedRainRenderer::new));
-        consumer.accept(new WeatherType.Factory<HauntingsEvent>("hauntings", HauntingsEvent::new, () -> HauntingsRenderer::new));
+        consumer.accept(new WeatherType.Factory<>("inverted_rain", InvertedRain::new, () -> InvertedRainRenderer::new));
+        consumer.accept(new WeatherType.Factory<>("hauntings", HauntingsEvent::new, () -> HauntingsRenderer::new));
+        consumer.accept(new WeatherType.Factory<>("fog", FogWeatherEvent::new, () -> FogWeatherRenderer::new));
     }
 
     @Nullable private final ServerLevel level;

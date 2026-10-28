@@ -12,7 +12,6 @@ import com.llamalad7.mixinextras.injector.wrapoperation.Operation;
 import com.llamalad7.mixinextras.injector.wrapoperation.WrapOperation;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
-import net.minecraft.core.Holder;
 import net.minecraft.core.particles.ParticleTypes;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.nbt.CompoundTag;
@@ -117,10 +116,10 @@ public abstract class LivingEntityMixin extends Entity implements LivingEntityEx
 			BlockState state = this.level().getBlockState(pos);
 			if (!(state.isAir() || state.canBeReplaced())) continue;
 			if (!groundState.canSurvive(this.level(), pos)) continue;
-   
+            
+            this.level().setBlock(pos, groundState, Block.UPDATE_CLIENTS);
 			break;
 		}
-        this.level().setBlock(pos, groundState, Block.UPDATE_ALL);
 	}
     
     @Unique private static final String BYGONE_HAUNTINGS_RISE_TICKS_TAG = "BygoneHauntingsMobRiseTicks";
