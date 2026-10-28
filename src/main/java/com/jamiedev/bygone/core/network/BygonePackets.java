@@ -26,5 +26,6 @@ public final class BygonePackets {
         register(Bygone.id("sync_weather"), SyncWeatherS2C::read);
         register(Bygone.id("updraft_movement"), UpdraftMovementS2C::read);
         register(Bygone.id("sync_player_hook"), SyncPlayerHookS2C::read);
+        register(Bygone.id("hauntings_toll"), HauntingsTollS2C::read);
     }
 }

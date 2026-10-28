@@ -1,6 +1,7 @@
 package com.jamiedev.bygone.forge.core.registry;
 
 import com.jamiedev.bygone.Bygone;
+import com.jamiedev.bygone.common.commands.BygoneWeatherCommand;
 import com.jamiedev.bygone.common.weather.BygoneWeather;
 import com.jamiedev.bygone.core.init.JamiesModTag;
 import it.unimi.dsi.fastutil.ints.Int2ObjectMap;
@@ -63,6 +64,6 @@ public class BGEvents {
     //TODO fix command registration
     @SubscribeEvent
     public static void addCommands(final RegisterCommandsEvent event) {
-        //BygoneWeatherCommand.register(event.getDispatcher(), event.getBuildContext());
+        BygoneWeatherCommand.register(event.getDispatcher(), event.getBuildContext());
     }
 }
